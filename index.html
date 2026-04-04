@@ -5,41 +5,602 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Steam & Steel — Maps Planner</title>
   <style>
-    body{font-family:system-ui,Arial,Helvetica,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;color:#222}
-    header{display:flex;align-items:center;justify-content:space-between}
-    .map{border:1px solid #e6e6e6;padding:12px 14px;border-radius:8px;margin:12px 0}
-    .meta{font-size:0.9rem;color:#555;margin-bottom:8px}
-    pre{white-space:pre-wrap}
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{--primary:#2563eb;--success:#16a34a;--warning:#f59e0b;--danger:#dc2626;--bg:#f9fafb;--card:#ffffff;--text:#1f2937;--text-secondary:#6b7280;--border:#e5e7eb}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    
+    header{background:var(--card);border-bottom:2px solid var(--border);padding:24px;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    .header-content{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    header h1{font-size:28px;font-weight:700}
+    header a{color:var(--primary);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:6px;transition:all 0.2s}
+    header a:hover{background:var(--bg)}
+    
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    
+    .control-bar{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap;align-items:center}
+    .search-box{flex:1;min-width:200px;padding:10px 14px;border:1px solid var(--border);border-radius:6px;font-size:14px}
+    .difficulty-filter{padding:10px 14px;border:1px solid var(--border);border-radius:6px;background:var(--card);cursor:pointer;font-size:14px}
+    
+    .maps-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+    
+    .map-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:all 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    .map-card:hover{box-shadow:0 10px 25px rgba(0,0,0,0.1);transform:translateY(-4px)}
+    
+    .map-header{padding:16px;background:linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);color:white}
+    .map-title{font-size:20px;font-weight:700;margin-bottom:8px}
+    .difficulty-badge{display:inline-block;padding:4px 10px;background:rgba(255,255,255,0.2);border-radius:4px;font-size:12px;font-weight:600}
+    
+    .map-content{padding:16px}
+    .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+    .stat{padding:10px;background:var(--bg);border-radius:6px;border-left:3px solid var(--primary)}
+    .stat-label{font-size:12px;color:var(--text-secondary);font-weight:600;text-transform:uppercase}
+    .stat-value{font-size:16px;font-weight:700;margin-top:4px}
+    
+    .section{margin-bottom:16px}
+    .section-title{font-size:13px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;margin-bottom:8px}
+    .creator{font-size:13px;color:var(--text-secondary)}
+    .date{font-size:12px;color:var(--text-secondary)}
+    
+    .consist-box{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;margin:8px 0}
+    .consist-title{font-weight:600;font-size:13px;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase}
+    .consist-item{font-size:13px;padding:6px 0;color:var(--text);border-bottom:1px solid var(--border)}
+    .consist-item:last-child{border:none}
+    
+    .cargo-adjustment{padding:10px;background:var(--bg);border-left:3px solid var(--warning);border-radius:4px;font-size:13px;font-weight:600}
+    
+    .notes-section{padding:12px;background:var(--bg);border-radius:6px;border-left:3px solid var(--danger);margin-top:12px}
+    .notes-section details{cursor:pointer}
+    .notes-section summary{font-weight:600;user-select:none;font-size:13px;color:var(--text)}
+    .notes-section pre{margin-top:8px;font-size:12px;white-space:pre-wrap;color:var(--text-secondary);font-family:monospace}
+    
+    .empty-state{text-align:center;padding:48px 24px;color:var(--text-secondary)}
+    .empty-state svg{width:64px;height:64px;margin-bottom:16px;opacity:0.5}
+    
+    /* Modal & Planner */
+    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+    .modal-content{background:var(--card);border-radius:12px;width:100%;max-width:1400px;height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.3);overflow:hidden}
+    
+    .planner-header{padding:16px;border-bottom:2px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .planner-header h2{margin:0;font-size:20px}
+    .btn-close{background:none;border:none;font-size:24px;cursor:pointer;padding:0;color:var(--text-secondary);transition:0.2s}
+    .btn-close:hover{color:var(--text)}
+    
+    .planner-body{display:grid;grid-template-columns:280px 1fr;gap:0;flex:1;overflow:hidden}
+    
+    .planner-sidebar{overflow-y:auto;border-right:1px solid var(--border);background:var(--bg)}
+    .panel{padding:16px;border-bottom:1px solid var(--border)}
+    .panel h3{margin:0 0 12px 0;font-size:14px;font-weight:700;color:var(--text)}
+    
+    .tool-btn{display:block;width:100%;padding:10px;margin:6px 0;background:var(--card);border:2px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s}
+    .tool-btn:hover{border-color:var(--primary);color:var(--primary)}
+    .tool-btn.active{background:var(--primary);color:white;border-color:var(--primary)}
+    
+    .color-picker{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .color-picker label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:6px}
+    .color-picker input[type="radio"]{cursor:pointer}
+    
+    .save-code-box{width:100%;height:80px;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:monospace;font-size:11px;resize:vertical;margin:8px 0}
+    
+    .btn-secondary{display:block;width:100%;padding:8px;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;transition:0.2s;margin:6px 0}
+    .btn-secondary:hover{background:var(--primary);color:white;border-color:var(--primary)}
+    
+    .planner-canvas-wrapper{display:flex;flex-direction:column;overflow:hidden;background:white}
+    .planner-canvas{display:block;flex:1;cursor:crosshair;background:white}
+    .canvas-help{padding:8px 12px;background:var(--bg);border-top:1px solid var(--border);font-size:12px;color:var(--text-secondary);text-align:center}
   </style>
 </head>
 <body>
   <header>
-    <h1>Steam & Steel — Map Planner</h1>
-    <a href="/docs/steam_steel_planner.md" style="font-size:0.9rem">Planner Guide</a>
+    <div class="header-content">
+      <h1>Steam & Steel — Map Planner</h1>
+      <a href="/docs/steam_steel_planner.md">📖 Planner Guide</a>
+    </div>
   </header>
-  <p>This site loads extracted map data from the repo. If you see a 404 on Vercel, make sure `index.html` and `vercel.json` are deployed to the project root.</p>
 
-  <div id="maps">Loading maps…</div>
+  <div class="container">
+    <div class="control-bar">
+      <input type="text" class="search-box" id="searchBox" placeholder="Search maps by name, creator, or engine...">
+      <select class="difficulty-filter" id="difficultyFilter">
+        <option value="">All Difficulties</option>
+        <option value="Easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="Hard">Hard</option>
+        <option value="Very Hard">Very Hard</option>
+      </select>
+    </div>
+
+    <div id="maps" class="maps-grid">
+      <div class="empty-state">Loading maps…</div>
+    </div>
+  </div>
+
+  <!-- Planner Modal -->
+  <div id="plannerModal" class="modal" style="display:none">
+    <div class="modal-content">
+      <div class="planner-header">
+        <h2 id="plannerTitle">Map Planner</h2>
+        <button class="btn-close" onclick="closePlanner()">✕</button>
+      </div>
+      
+      <div class="planner-body">
+        <div class="planner-sidebar">
+          <div class="panel">
+            <h3>🛠️ Tools</h3>
+            <button class="tool-btn active" data-tool="route">🛣️ Route</button>
+            <button class="tool-btn" data-tool="tunnel">🚇 Tunnel</button>
+            <button class="tool-btn" data-tool="station">🏢 Station</button>
+            <button class="tool-btn" data-tool="erase">🗑️ Erase</button>
+            <button class="tool-btn" data-tool="clear">⚠️ Clear All</button>
+          </div>
+
+          <div class="panel">
+            <h3>🎨 Colors</h3>
+            <div class="color-picker">
+              <label><input type="radio" name="color" value="#ef4444" /> Red</label>
+              <label><input type="radio" name="color" value="#3b82f6" checked /> Blue</label>
+              <label><input type="radio" name="color" value="#10b981" /> Green</label>
+              <label><input type="radio" name="color" value="#f59e0b" /> Orange</label>
+              <label><input type="radio" name="color" value="#8b5cf6" /> Purple</label>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>💾 Save/Load</h3>
+            <button class="btn-secondary" onclick="generateSaveCode()">Generate Code</button>
+            <textarea id="saveCode" class="save-code-box" placeholder="Paste save code here..."></textarea>
+            <button class="btn-secondary" onclick="loadFromCode()">Load Code</button>
+          </div>
+
+          <div class="panel">
+            <h3>📋 Info</h3>
+            <div id="mapInfo" style="font-size: 13px; line-height: 1.6;"></div>
+          </div>
+        </div>
+
+        <div class="planner-canvas-wrapper">
+          <canvas id="plannerCanvas" class="planner-canvas"></canvas>
+          <div class="canvas-help">
+            <small>Click and drag to draw routes • Ctrl+Z to undo • Right-click to deselect</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
+    let allMaps = [];
+    let currentMap = null;
+    let plannerState = {
+      lines: [],
+      tunnels: [],
+      stations: [],
+      currentTool: 'route',
+      currentColor: '#3b82f6',
+      history: []
+    };
+    let isDrawing = false;
+    let startX, startY;
+    const canvas = document.getElementById('plannerCanvas');
+    const ctx = canvas ? canvas.getContext('2d') : null;
+
     async function load(){
       try{
         const res = await fetch('data/steam_steel_maps.json');
         if(!res.ok) throw new Error('HTTP '+res.status);
         const j = await res.json();
-        const maps = j.maps || [];
+        allMaps = j.maps || [];
         const out = document.getElementById('maps');
-        if(!maps.length){ out.innerText = 'No maps found in data/steam_steel_maps.json'; return }
-        out.innerHTML = maps.map(m=>{
-          const depot = (m.initial_depot||[]).slice(0,6).map(i=>`<li>${i}</li>`).join('');
-          const notes = (m.grade_curve_notes||[]).join('\n');
-          return `\n<div class="map">\n  <h2>${m.title}</h2>\n  <div class="meta">${m.difficulty||m.display_difficulty||''} — ${m.roughness||''} — Starter: ${m.starter_engine||''} — Money: ${m.starting_money||m.display_money||''}</div>\n  <div><strong>Initial depot</strong><ul>${depot}</ul></div>\n  ${notes ? `<details><summary>Grade / Curve notes</summary><pre>${notes}</pre></details>` : ''}\n</div>`
-        }).join('\n')
+        if(!allMaps.length){ 
+          out.innerHTML = '<div class="empty-state" style="grid-column: 1/-1">No maps found in data/steam_steel_maps.json</div>';
+          return;
+        }
+        renderMaps(allMaps);
+        setupFilters();
       }catch(err){
-        document.getElementById('maps').innerText = 'Error loading data: '+err.message
+        document.getElementById('maps').innerHTML = '<div class="empty-state" style="grid-column: 1/-1">Error loading data: '+err.message+'</div>';
       }
     }
-    load()
+
+    function renderMaps(maps){
+      const out = document.getElementById('maps');
+      if(!maps.length){
+        out.innerHTML = '<div class="empty-state" style="grid-column: 1/-1">No maps match your search.</div>';
+        return;
+      }
+      out.innerHTML = maps.map(m => {
+        const depot = m.initial_depot || [];
+        const engine = depot.find(d => d.includes('Class') || d.includes('Type')) || '';
+        const wagons = depot.filter((d, i) => i > 0 && !d.includes('[[') && d.trim());
+        const notes = (m.grade_curve_notes || []).join('\n').trim();
+        const difficulty = m.difficulty || m.display_difficulty || 'Unknown';
+        
+        return `
+          <div class="map-card" style="cursor:pointer" onclick="openPlanner(${allMaps.indexOf(m)})">
+            <div class="map-header">
+              <div class="map-title">${escapeHtml(m.title)}</div>
+              <span class="difficulty-badge">${escapeHtml(difficulty)}</span>
+            </div>
+            <div class="map-content">
+              <div class="stats-grid">
+                <div class="stat">
+                  <div class="stat-label">Starting Money</div>
+                  <div class="stat-value">${escapeHtml(m.starting_money || m.display_money || '$?')}</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">Roughness</div>
+                  <div class="stat-value">${escapeHtml(m.roughness || '?')}</div>
+                </div>
+              </div>
+
+              <div class="section">
+                <div class="section-title">🚂 Initial Consist</div>
+                <div class="consist-box">
+                  <div class="consist-title">Locomotive & Equipment</div>
+                  ${depot.slice(0, 3).map(item => 
+                    `<div class="consist-item">${escapeHtml(item)}</div>`
+                  ).join('')}
+                </div>
+              </div>
+
+              ${depot.length > 3 ? `
+                <div class="section">
+                  <div class="section-title">🚞 Wagons</div>
+                  <div class="consist-box">
+                    <div class="consist-title">Attached Vehicles</div>
+                    ${depot.slice(3).map(item => 
+                      `<div class="consist-item">${escapeHtml(item)}</div>`
+                    ).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              ${m.cargo_adjustment && m.cargo_adjustment !== 'Unknown' ? `
+                <div class="cargo-adjustment">
+                  📦 Cargo Adjustment: ${escapeHtml(m.cargo_adjustment)}
+                </div>
+              ` : ''}
+
+              <div class="section" style="margin-top: 12px; font-size: 12px;">
+                <div class="creator">✏️ Creator: ${escapeHtml((m.creator || 'Unknown').replace(/\n/g, ', '))}</div>
+                <div class="date">📅 Added: ${escapeHtml(m.date_added || 'Unknown')}</div>
+              </div>
+
+              ${notes ? `
+                <div class="notes-section">
+                  <details>
+                    <summary>⚠️ Grade / Curve Notes</summary>
+                    <pre>${escapeHtml(notes)}</pre>
+                  </details>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function setupFilters(){
+      const searchBox = document.getElementById('searchBox');
+      const difficultyFilter = document.getElementById('difficultyFilter');
+      
+      searchBox.addEventListener('input', applyFilters);
+      difficultyFilter.addEventListener('change', applyFilters);
+    }
+
+    function applyFilters(){
+      const searchBox = document.getElementById('searchBox');
+      const difficultyFilter = document.getElementById('difficultyFilter');
+      const searchTerm = searchBox.value.toLowerCase();
+      const difficultyTerm = difficultyFilter.value;
+
+      const filtered = allMaps.filter(m => {
+        const titleMatch = m.title.toLowerCase().includes(searchTerm);
+        const creatorMatch = (m.creator || '').toLowerCase().includes(searchTerm);
+        const engineMatch = (m.starter_engine || '').toLowerCase().includes(searchTerm);
+        const searchMatch = titleMatch || creatorMatch || engineMatch;
+        
+        const difficulty = m.difficulty || m.display_difficulty || '';
+        const difficultyMatch = !difficultyTerm || difficulty.includes(difficultyTerm);
+        
+        return searchMatch && difficultyMatch;
+      });
+
+      renderMaps(filtered);
+    }
+
+    function escapeHtml(text){
+      const map = {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'};
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Planner functions
+    function openPlanner(mapIndex) {
+      currentMap = allMaps[mapIndex];
+      plannerState = {
+        lines: [],
+        tunnels: [],
+        stations: [],
+        currentTool: 'route',
+        currentColor: '#3b82f6',
+        history: []
+      };
+      
+      document.getElementById('plannerTitle').textContent = `${currentMap.title} - Route Planner`;
+      document.getElementById('plannerModal').style.display = 'flex';
+      
+      setTimeout(initCanvas, 100);
+      updateMapInfo();
+    }
+
+    function closePlanner() {
+      document.getElementById('plannerModal').style.display = 'none';
+      currentMap = null;
+    }
+
+    function initCanvas() {
+      if (!canvas) return;
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+      redrawCanvas();
+      setupCanvasEvents();
+    }
+
+    function setupCanvasEvents() {
+      canvas.addEventListener('mousedown', onCanvasMouseDown);
+      canvas.addEventListener('mousemove', onCanvasMouseMove);
+      canvas.addEventListener('mouseup', onCanvasMouseUp);
+      canvas.addEventListener('contextmenu', e => e.preventDefault());
+      canvas.addEventListener('mouseout', onCanvasMouseUp);
+
+      document.querySelectorAll('.tool-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          plannerState.currentTool = btn.dataset.tool;
+        });
+      });
+
+      document.querySelectorAll('input[name="color"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          plannerState.currentColor = radio.value;
+        });
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.ctrlKey && e.key === 'z') {
+          e.preventDefault();
+          undo();
+        }
+      });
+    }
+
+    function onCanvasMouseDown(e) {
+      if (!currentMap) return;
+      const rect = canvas.getBoundingClientRect();
+      startX = e.clientX - rect.left;
+      startY = e.clientY - rect.top;
+      isDrawing = true;
+
+      if (plannerState.currentTool === 'clear') {
+        if (confirm('Clear all drawings on this map?')) {
+          saveToHistory();
+          plannerState.lines = [];
+          plannerState.tunnels = [];
+          plannerState.stations = [];
+          redrawCanvas();
+        }
+        isDrawing = false;
+      }
+    }
+
+    function onCanvasMouseMove(e) {
+      if (!isDrawing || !currentMap) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      redrawCanvas();
+      
+      if (plannerState.currentTool === 'route') {
+        ctx.strokeStyle = plannerState.currentColor;
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(startX, startY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    }
+
+    function onCanvasMouseUp(e) {
+      if (!isDrawing || !currentMap) return;
+      isDrawing = false;
+
+      const rect = canvas.getBoundingClientRect();
+      const endX = e.clientX - rect.left;
+      const endY = e.clientY - rect.top;
+
+      saveToHistory();
+
+      if (plannerState.currentTool === 'route') {
+        plannerState.lines.push({
+          x1: startX, y1: startY, x2: endX, y2: endY,
+          color: plannerState.currentColor
+        });
+      } else if (plannerState.currentTool === 'tunnel') {
+        plannerState.tunnels.push({
+          x: endX, y: endY, color: plannerState.currentColor
+        });
+      } else if (plannerState.currentTool === 'station') {
+        plannerState.stations.push({
+          x: endX, y: endY, color: plannerState.currentColor
+        });
+      } else if (plannerState.currentTool === 'erase') {
+        eraseLine(endX, endY);
+      }
+
+      redrawCanvas();
+    }
+
+    function eraseLine(x, y) {
+      const tolerance = 10;
+      plannerState.lines = plannerState.lines.filter(line => {
+        const dist = pointToLineDistance(x, y, line.x1, line.y1, line.x2, line.y2);
+        return dist > tolerance;
+      });
+    }
+
+    function pointToLineDistance(px, py, x1, y1, x2, y2) {
+      const A = px - x1;
+      const B = py - y1;
+      const C = x2 - x1;
+      const D = y2 - y1;
+      const dot = A * C + B * D;
+      const lenSq = C * C + D * D;
+      let param = -1;
+      if (lenSq !== 0) param = dot / lenSq;
+      
+      let xx, yy;
+      if (param < 0) {
+        xx = x1;
+        yy = y1;
+      } else if (param > 1) {
+        xx = x2;
+        yy = y2;
+      } else {
+        xx = x1 + param * C;
+        yy = y1 + param * D;
+      }
+      
+      const dx = px - xx;
+      const dy = py - yy;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    function redrawCanvas() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Grid
+      ctx.strokeStyle = '#f3f4f6';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < canvas.width; i += 40) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+      }
+      for (let i = 0; i < canvas.height; i += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(canvas.width, i);
+        ctx.stroke();
+      }
+
+      // Draw lines
+      plannerState.lines.forEach(line => {
+        ctx.strokeStyle = line.color;
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(line.x1, line.y1);
+        ctx.lineTo(line.x2, line.y2);
+        ctx.stroke();
+      });
+
+      // Draw tunnels
+      plannerState.tunnels.forEach(tunnel => {
+        ctx.fillStyle = tunnel.color;
+        ctx.beginPath();
+        ctx.arc(tunnel.x, tunnel.y, 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(tunnel.x - 4, tunnel.y);
+        ctx.lineTo(tunnel.x + 4, tunnel.y);
+        ctx.stroke();
+      });
+
+      // Draw stations
+      plannerState.stations.forEach(station => {
+        ctx.fillStyle = station.color;
+        ctx.fillRect(station.x - 8, station.y - 8, 16, 16);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(station.x - 8, station.y - 8, 16, 16);
+      });
+    }
+
+    function saveToHistory() {
+      plannerState.history.push(JSON.parse(JSON.stringify({
+        lines: plannerState.lines,
+        tunnels: plannerState.tunnels,
+        stations: plannerState.stations
+      })));
+    }
+
+    function undo() {
+      if (plannerState.history.length > 0) {
+        const prev = plannerState.history.pop();
+        plannerState.lines = prev.lines;
+        plannerState.tunnels = prev.tunnels;
+        plannerState.stations = prev.stations;
+        redrawCanvas();
+      }
+    }
+
+    function generateSaveCode() {
+      const data = {
+        map: currentMap.title,
+        lines: plannerState.lines,
+        tunnels: plannerState.tunnels,
+        stations: plannerState.stations
+      };
+      const json = JSON.stringify(data);
+      const compressed = btoa(json);
+      document.getElementById('saveCode').value = compressed;
+    }
+
+    function loadFromCode() {
+      const code = document.getElementById('saveCode').value.trim();
+      if (!code) return;
+      try {
+        const json = atob(code);
+        const data = JSON.parse(json);
+        if (data.map !== currentMap.title) {
+          alert('This save code is for a different map (' + data.map + ')');
+          return;
+        }
+        saveToHistory();
+        plannerState.lines = data.lines || [];
+        plannerState.tunnels = data.tunnels || [];
+        plannerState.stations = data.stations || [];
+        redrawCanvas();
+        alert('Save loaded successfully!');
+      } catch (err) {
+        alert('Invalid save code: ' + err.message);
+      }
+    }
+
+    function updateMapInfo() {
+      const info = document.getElementById('mapInfo');
+      const m = currentMap;
+      const difficulty = m.difficulty || m.display_difficulty || 'Unknown';
+      info.innerHTML = `
+        <strong>${escapeHtml(m.title)}</strong><br/>
+        <strong>Difficulty:</strong> ${escapeHtml(difficulty)}<br/>
+        <strong>Roughness:</strong> ${escapeHtml(m.roughness || '?')}<br/>
+        <strong>Money:</strong> ${escapeHtml(m.starting_money || m.display_money || '?')}<br/>
+        <strong>Engine:</strong> ${escapeHtml(m.starter_engine || '?')}<br/>
+        <strong>Cargo:</strong> ${escapeHtml(m.cargo_adjustment || '?')}<br/>
+        <strong>Creator:</strong> ${escapeHtml((m.creator || 'Unknown').replace(/\n/g, ', '))}
+      `;
+    }
+
+    load();
   </script>
 </body>
 </html>
