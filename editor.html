@@ -1,0 +1,633 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Steam & Steel — Interactive Editor & Planner</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Arial, sans-serif;
+    }
+    body {
+      display: flex;
+      flex-direction: column;
+      background: #f0f2f5;
+      color: #1a1a1a;
+    }
+    header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+    header h1 { margin: 0; font-size: 1.6rem; }
+    .header-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    button, a.btn {
+      padding: 10px 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+    button:hover, a.btn:hover { background: #2980b9; transform: translateY(-1px); }
+    button.danger { background: #e74c3c; }
+    button.danger:hover { background: #c0392b; }
+    button.success { background: #27ae60; }
+    button.success:hover { background: #229954; }
+    
+    .container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    
+    .sidebar {
+      width: 320px;
+      background: white;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .panel {
+      padding: 16px;
+      border-bottom: 1px solid #eee;
+    }
+    .panel h3 {
+      margin: 0 0 12px 0;
+      color: #2c3e50;
+      font-size: 1rem;
+    }
+    
+    .search-input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+    
+    .map-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    
+    .map-item {
+      padding: 12px;
+      background: #f9f9f9;
+      border: 2px solid #e6e6e6;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .map-item:hover { border-color: #3498db; background: #f0f8ff; }
+    .map-item.active { border-color: #27ae60; background: #e8f8f3; font-weight: 600; }
+    .map-item-name { font-weight: 600; margin-bottom: 4px; }
+    .map-item-meta { font-size: 0.8rem; color: #666; }
+    
+    .editor-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .tabs {
+      display: flex;
+      background: white;
+      border-bottom: 2px solid #ddd;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px;
+      background: #f5f5f5;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      color: #666;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+    .tab:hover { background: white; }
+    .tab.active {
+      background: white;
+      color: #3498db;
+      border-bottom-color: #3498db;
+    }
+    
+    .tab-content {
+      display: none;
+      flex: 1;
+      overflow-y: auto;
+      background: white;
+      padding: 24px;
+    }
+    .tab-content.active { display: block; }
+    
+    .form-group {
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    label {
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #2c3e50;
+      font-size: 0.95rem;
+    }
+    input, textarea, select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    
+    .depot-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .depot-item {
+      display: flex;
+      gap: 8px;
+    }
+    .depot-item input { flex: 1; }
+    .depot-item button { width: 40px; }
+    
+    .engine-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .engine-card {
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 12px;
+      background: #f9f9f9;
+    }
+    .engine-card h4 { margin: 0 0 8px 0; color: #2c3e50; }
+    .engine-stat { font-size: 0.85rem; margin: 4px 0; color: #555; }
+    .engine-stat-label { font-weight: 600; color: #333; }
+    
+    .notes-editor {
+      background: #f9f9f9;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+    
+    .empty-state {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #999;
+      font-size: 1.2rem;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .btn-group button { flex: 1; min-width: 120px; }
+    
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin-top: 16px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th { background: #f5f5f5; font-weight: 600; color: #2c3e50; }
+    tr:hover { background: #f9f9f9; }
+    
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-box {
+      background: #f0f8ff;
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 4px solid #3498db;
+    }
+    .stat-box-label { font-size: 0.85rem; color: #666; font-weight: 600; }
+    .stat-box-value { font-size: 1.5rem; font-weight: 700; color: #2c3e50; margin-top: 4px; }
+    
+    @media (max-width: 768px) {
+      .container { flex-direction: column; }
+      .sidebar { width: 100%; height: 200px; }
+      .engine-comparison { grid-template-columns: 1fr; }
+      .stats-overview { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>⚙️ Steam & Steel Editor & Planner</h1>
+    <div class="header-buttons">
+      <button onclick="app.exportJSON()">📥 Export JSON</button>
+      <a href="index.html" class="btn">← Back to Viewer</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Sidebar: Map List -->
+    <div class="sidebar">
+      <div class="panel">
+        <h3>📍 Maps</h3>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search maps..." oninput="app.filterMaps()">
+        <div class="map-list" id="mapList"></div>
+        <button style="width: 100%; margin-top: 8px;" onclick="app.createNewMap()">+ New Map</button>
+      </div>
+    </div>
+
+    <!-- Main: Editor Tabs -->
+    <div class="main">
+      <div class="editor-area" id="editorArea">
+        <div id="noSelection" class="empty-state">
+          Select a map to begin editing
+        </div>
+
+        <div id="editor" style="display: none; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+          <div class="tabs">
+            <button class="tab active" onclick="app.switchTab('details')">Details</button>
+            <button class="tab" onclick="app.switchTab('depot')">Depot</button>
+            <button class="tab" onclick="app.switchTab('engines')">Engines</button>
+            <button class="tab" onclick="app.switchTab('notes')">Notes</button>
+            <button class="tab" onclick="app.switchTab('reference')">Reference</button>
+          </div>
+
+          <!-- Details Tab -->
+          <div id="detailsTab" class="tab-content active">
+            <div class="stats-overview">
+              <div class="stat-box">
+                <div class="stat-box-label">Difficulty</div>
+                <div class="stat-box-value" id="difficultyDisplay">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-box-label">Roughness</div>
+                <div class="stat-box-value" id="roughnessDisplay">—</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-box-label">Cargo Adj</div>
+                <div class="stat-box-value" id="cargoDisplay">—</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Map Title</label>
+              <input type="text" id="titleInput" onchange="app.updateField('title')">
+            </div>
+            <div class="form-group">
+              <label>Difficulty</label>
+              <input type="text" id="difficultyInput" placeholder="e.g., Medium, Hard" onchange="app.updateField('difficulty')">
+            </div>
+            <div class="form-group">
+              <label>Roughness</label>
+              <input type="text" id="roughnessInput" placeholder="e.g., Low, Medium, High" onchange="app.updateField('roughness')">
+            </div>
+            <div class="form-group">
+              <label>Starter Engine</label>
+              <input type="text" id="starterEngineInput" placeholder="e.g., Class C" onchange="app.updateField('starter_engine')">
+            </div>
+            <div class="form-group">
+              <label>Starting Money</label>
+              <input type="text" id="moneyInput" placeholder="e.g., $30000" onchange="app.updateField('display_money')">
+            </div>
+            <div class="form-group">
+              <label>Cargo Adjustment</label>
+              <input type="text" id="cargoAdjInput" placeholder="e.g., +0%, +15%" onchange="app.updateField('cargo_adjustment')">
+            </div>
+            <div class="form-group">
+              <label>Creator(s)</label>
+              <textarea id="creatorInput" placeholder="Creator names, separated by newlines" onchange="app.updateField('creator')"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Date Added</label>
+              <input type="text" id="dateInput" placeholder="e.g., June 25th, 2023" onchange="app.updateField('date_added')">
+            </div>
+
+            <div class="btn-group">
+              <button class="success" onclick="app.saveMap()">✓ Save</button>
+              <button class="danger" onclick="app.deleteMap()">🗑 Delete</button>
+            </div>
+          </div>
+
+          <!-- Depot Tab -->
+          <div id="depotTab" class="tab-content">
+            <h3>Initial Depot</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 12px;">Configure starting equipment and locomotives</p>
+            <div class="depot-items" id="depotItemsList"></div>
+            <button onclick="app.addDepotItem()" style="width: 100%;">+ Add Depot Item</button>
+          </div>
+
+          <!-- Engines Tab -->
+          <div id="enginesTab" class="tab-content">
+            <h3>Engine Compatibility</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 16px;">Reference: Starter engine for this map and comparable classes</p>
+            <div id="enginesList"></div>
+          </div>
+
+          <!-- Notes Tab -->
+          <div id="notesTab" class="tab-content">
+            <h3>Grade & Curve Notes</h3>
+            <p style="font-size: 0.9rem; color: #666; margin-bottom: 12px;">Planning tips for routes and track layout</p>
+            <div class="notes-editor">
+              <textarea id="notesInput" placeholder="Add planning notes..." onchange="app.updateField('notes')"></textarea>
+            </div>
+          </div>
+
+          <!-- Reference Tab -->
+          <div id="referenceTab" class="tab-content">
+            <h3>All Engine Classes</h3>
+            <table id="engineTable">
+              <thead>
+                <tr>
+                  <th>Class</th>
+                  <th>Tractive Effort</th>
+                  <th>Top Speed</th>
+                  <th>Coal Capacity</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const app = {
+      maps: [],
+      engines: [],
+      selected: null,
+      filtered: [],
+
+      async init() {
+        try {
+          const [mapsRes, enginesRes] = await Promise.all([
+            fetch('data/steam_steel_maps.json'),
+            fetch('data/steam_steel_locomotives.json')
+          ]);
+          if (!mapsRes.ok || !enginesRes.ok) throw new Error('Failed to load');
+          this.maps = (await mapsRes.json()).maps || [];
+          this.engines = (await enginesRes.json()).locomotives || [];
+          this.filtered = [...this.maps];
+          this.renderMapList();
+          this.renderEngineTable();
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      },
+
+      renderMapList() {
+        const html = this.filtered.map((m, idx) => `
+          <div class="map-item ${this.selected === idx ? 'active' : ''}" onclick="app.selectMap(${idx})">
+            <div class="map-item-name">${m.title}</div>
+            <div class="map-item-meta">${m.difficulty || '?'} • ${m.roughness || '?'}</div>
+            <div class="map-item-meta">${m.starter_engine || '?'} - ${m.display_money || '?'}</div>
+          </div>
+        `).join('');
+        document.getElementById('mapList').innerHTML = html || '<div style="padding: 12px; color: #999;">No maps found</div>';
+      },
+
+      filterMaps() {
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        this.filtered = this.maps.filter(m => 
+          m.title.toLowerCase().includes(query) ||
+          (m.creator || '').toLowerCase().includes(query) ||
+          (m.starter_engine || '').toLowerCase().includes(query)
+        );
+        this.renderMapList();
+      },
+
+      selectMap(idx) {
+        const originalIdx = this.maps.findIndex(m => m === this.filtered[idx]);
+        this.selected = originalIdx;
+        this.renderMapList();
+        this.showEditor();
+        this.loadMapData();
+      },
+
+      showEditor() {
+        document.getElementById('noSelection').style.display = 'none';
+        document.getElementById('editor').style.display = 'flex';
+      },
+
+      loadMapData() {
+        const m = this.maps[this.selected];
+        if (!m) return;
+        
+        document.getElementById('titleInput').value = m.title || '';
+        document.getElementById('difficultyInput').value = m.difficulty || m.display_difficulty || '';
+        document.getElementById('roughnessInput').value = m.roughness || '';
+        document.getElementById('starterEngineInput').value = m.starter_engine || '';
+        document.getElementById('moneyInput').value = m.display_money || m.starting_money || '';
+        document.getElementById('cargoAdjInput').value = m.cargo_adjustment || '';
+        document.getElementById('creatorInput').value = m.creator || '';
+        document.getElementById('dateInput').value = m.date_added || '';
+        document.getElementById('notesInput').value = (m.grade_curve_notes || []).join('\n');
+
+        document.getElementById('difficultyDisplay').textContent = m.difficulty || m.display_difficulty || '—';
+        document.getElementById('roughnessDisplay').textContent = m.roughness || '—';
+        document.getElementById('cargoDisplay').textContent = m.cargo_adjustment || '—';
+
+        this.renderDepotItems(m);
+        this.renderEnginesList(m);
+      },
+
+      renderDepotItems(m) {
+        const list = document.getElementById('depotItemsList');
+        const items = m.initial_depot || [];
+        list.innerHTML = items.map((item, i) => `
+          <div class="depot-item">
+            <input type="text" value="${item}" onchange="app.updateDepotItem(${i}, this.value)">
+            <button onclick="app.removeDepotItem(${i})">Remove</button>
+          </div>
+        `).join('');
+      },
+
+      renderEnginesList(m) {
+        const starter = m.starter_engine;
+        const eng = this.engines.find(e => e.title === starter);
+        if (!eng) {
+          document.getElementById('enginesList').innerHTML = '<p style="color: #999;">Engine not found in reference</p>';
+          return;
+        }
+        document.getElementById('enginesList').innerHTML = `
+          <div class="engine-card">
+            <h4>${eng.title}</h4>
+            <div class="engine-stat"><span class="engine-stat-label">Name:</span> ${eng.name || '—'}</div>
+            <div class="engine-stat"><span class="engine-stat-label">Weight:</span> ${eng.weight || '—'}</div>
+            <div class="engine-stat"><span class="engine-stat-label">Tractive Effort:</span> ${eng.tractive_effort || '—'}</div>
+            <div class="engine-stat"><span class="engine-stat-label">Top Speed:</span> ${eng.top_speed || '—'}</div>
+            <div class="engine-stat"><span class="engine-stat-label">Coal Capacity:</span> ${eng.coal_capacity || '—'}</div>
+            <div class="engine-stat"><span class="engine-stat-label">Cost:</span> ${(eng.cost || '—').replace(/\n/g, ' / ')}</div>
+          </div>
+        `;
+      },
+
+      renderEngineTable() {
+        const tbody = document.querySelector('#engineTable tbody');
+        tbody.innerHTML = this.engines.map(e => `
+          <tr>
+            <td><strong>${e.title}</strong></td>
+            <td>${e.tractive_effort || '—'}</td>
+            <td>${e.top_speed || '—'}</td>
+            <td>${e.coal_capacity || '—'}</td>
+          </tr>
+        `).join('');
+      },
+
+      updateField(field) {
+        const m = this.maps[this.selected];
+        if (!m) return;
+        
+        if (field === 'title') m.title = document.getElementById('titleInput').value;
+        else if (field === 'difficulty') {
+          m.difficulty = document.getElementById('difficultyInput').value;
+          m.display_difficulty = m.difficulty;
+        }
+        else if (field === 'roughness') m.roughness = document.getElementById('roughnessInput').value;
+        else if (field === 'starter_engine') m.starter_engine = document.getElementById('starterEngineInput').value;
+        else if (field === 'display_money') m.display_money = document.getElementById('moneyInput').value;
+        else if (field === 'cargo_adjustment') m.cargo_adjustment = document.getElementById('cargoAdjInput').value;
+        else if (field === 'creator') m.creator = document.getElementById('creatorInput').value;
+        else if (field === 'date_added') m.date_added = document.getElementById('dateInput').value;
+        else if (field === 'notes') m.grade_curve_notes = document.getElementById('notesInput').value.split('\n').filter(x => x.trim());
+        
+        this.renderMapList();
+      },
+
+      updateDepotItem(idx, value) {
+        const m = this.maps[this.selected];
+        if (m && m.initial_depot) m.initial_depot[idx] = value;
+      },
+
+      removeDepotItem(idx) {
+        const m = this.maps[this.selected];
+        if (m && m.initial_depot) {
+          m.initial_depot.splice(idx, 1);
+          this.renderDepotItems(m);
+        }
+      },
+
+      addDepotItem() {
+        const m = this.maps[this.selected];
+        if (m) {
+          if (!m.initial_depot) m.initial_depot = [];
+          m.initial_depot.push('New item');
+          this.renderDepotItems(m);
+        }
+      },
+
+      createNewMap() {
+        const newMap = {
+          title: 'Untitled Map',
+          difficulty: 'Medium',
+          display_difficulty: 'Medium',
+          roughness: 'Medium',
+          starter_engine: 'Class C',
+          starting_money: '$30000',
+          display_money: '$30000',
+          cargo_adjustment: '+0%',
+          creator: '',
+          date_added: new Date().toLocaleDateString(),
+          initial_depot: [],
+          grade_curve_notes: []
+        };
+        this.maps.push(newMap);
+        this.filtered = [...this.maps];
+        this.selected = this.maps.length - 1;
+        this.renderMapList();
+        this.showEditor();
+        this.loadMapData();
+      },
+
+      saveMap() {
+        this.updateField('title');
+        alert('Map updated in memory. Click "Export JSON" to save.');
+      },
+
+      deleteMap() {
+        if (confirm('Delete this map?')) {
+          this.maps.splice(this.selected, 1);
+          this.filtered = [...this.maps];
+          this.selected = null;
+          document.getElementById('noSelection').style.display = 'flex';
+          document.getElementById('editor').style.display = 'none';
+          this.renderMapList();
+        }
+      },
+
+      exportJSON() {
+        const data = { maps: this.maps };
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'steam_steel_maps.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+
+      switchTab(name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(name + 'Tab').classList.add('active');
+      }
+    };
+
+    app.init();
+  </script>
+</body>
+</html>
