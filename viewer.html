@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Steam & Steel — Browse Maps & Plans</title>
+  <title>Steam & Steel — Maps & Community Plans</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -37,14 +37,13 @@
       margin-bottom: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .intro h2 { margin: 0 0 12px 0; color: #2c3e50; }
+    .intro h2 { margin: 0 0 12px 0; color: #2c3e50; font-size: 1.5rem; }
     .intro p { color: #666; line-height: 1.6; }
     
     .maps-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
       gap: 24px;
-      margin-top: 24px;
     }
     
     .map-card {
@@ -52,9 +51,9 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      transition: box-shadow 0.3s, transform 0.3s;
+      transition: all 0.3s;
     }
-    .map-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
+    .map-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.15); transform: translateY(-4px); }
     
     .map-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -68,45 +67,38 @@
       padding: 20px;
     }
     
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+      color: #666;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-label { font-weight: 600; }
+    
     .plan-count {
       background: #f9f9f9;
       padding: 12px;
       border-radius: 6px;
       text-align: center;
-      margin-bottom: 16px;
-      font-size: 0.9rem;
+      margin: 16px 0;
+      font-weight: 600;
     }
-    .plan-count strong { color: #667eea; font-size: 1.2rem; }
+    .plan-count strong { color: #667eea; font-size: 1.3rem; display: block; margin-bottom: 4px; }
     
-    .plan-list {
-      border-top: 1px solid #e0e0e0;
-      padding-top: 12px;
-      margin-bottom: 16px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-    
-    .plan-item {
-      font-size: 0.9rem;
-      padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
-      color: #666;
-    }
-    .plan-item:last-child { border-bottom: none; }
-    .plan-name { font-weight: 600; color: #2c3e50; }
-    .plan-meta { font-size: 0.85rem; color: #999; margin-top: 2px; }
-    
-    .tips-section {
+    .tips-preview {
       background: #f0f8ff;
       padding: 12px;
       border-radius: 6px;
       margin-bottom: 16px;
       border-left: 3px solid #3498db;
+      font-size: 0.9rem;
     }
-    .tips-title { font-weight: 600; color: #2c3e50; margin-bottom: 6px; font-size: 0.85rem; }
-    .tip-item { font-size: 0.8rem; color: #666; margin-bottom: 4px; padding-left: 8px; border-left: 2px solid #3498db; }
-    .tip-item:last-child { margin-bottom: 0; }
-    .tip-text { font-style: italic; }
+    .tips-title { font-weight: 600; color: #2c3e50; margin-bottom: 6px; }
+    .tip-line { color: #666; margin-bottom: 4px; font-size: 0.85rem; }
+    .tip-line:last-child { margin-bottom: 0; }
     
     .buttons {
       display: flex;
@@ -114,7 +106,7 @@
       margin-top: 16px;
     }
     
-    button {
+    button, a.btn {
       flex: 1;
       padding: 10px 12px;
       border: none;
@@ -130,16 +122,14 @@
       gap: 6px;
     }
     
-    .btn-create { background: #3498db; color: white; }
-    .btn-create:hover { background: #2980b9; }
+    .btn-plan { background: #3498db; color: white; }
+    .btn-plan:hover { background: #2980b9; }
     
     .btn-tip { background: #27ae60; color: white; }
     .btn-tip:hover { background: #229954; }
     
     @media (max-width: 768px) {
-      .maps-grid {
-        grid-template-columns: 1fr;
-      }
+      .maps-grid { grid-template-columns: 1fr; }
       .buttons { flex-direction: column; }
     }
   </style>
@@ -154,19 +144,28 @@
 
   <div class="container">
     <div class="intro">
-      <h2>Choose a Map & Get Planning!</h2>
-      <p>Browse all available maps, see what routes the community has planned, and start creating your own routes. Pick a map, draw your route, and save it to help others!</p>
+      <h2>Browse Maps & Community Plans</h2>
+      <p>Explore all 8 official Steam & Steel maps. See what routes the community has created, view shared tips, and start planning your own routes!</p>
     </div>
 
-    <div class="maps-grid" id="mapsContainer"></div>
+    <div class="maps-grid" id="mapsContainer">
+      <div style="text-align: center; color: #999; padding: 40px;">Loading maps...</div>
+    </div>
   </div>
 
   <script>
     let app = {
       maps: [],
       plans: {},
-      contributions: {},
-      
+      tips: {},
+
+      async init() {
+        await this.loadMaps();
+        this.loadPlans();
+        this.loadTips();
+        this.render();
+      },
+
       async loadMaps() {
         try {
           const res = await fetch('data/steam_steel_maps.json');
@@ -174,72 +173,71 @@
           const data = await res.json();
           this.maps = data.maps || [];
         } catch (err) {
+          console.error(err);
           alert('Error loading maps: ' + err.message);
         }
       },
-      
+
       loadPlans() {
         const stored = localStorage.getItem('steamsteelplans');
         this.plans = stored ? JSON.parse(stored) : {};
       },
-      
-      loadContributions() {
+
+      loadTips() {
         const stored = localStorage.getItem('steamsteelcontributions');
         const all = stored ? JSON.parse(stored) : [];
-        this.contributions = {};
-        all.forEach(c => {
-          if (!this.contributions[c.map]) this.contributions[c.map] = [];
-          this.contributions[c.map].push(c);
+        this.tips = {};
+        all.forEach(tip => {
+          if (!this.tips[tip.map]) this.tips[tip.map] = [];
+          this.tips[tip.map].push(tip);
         });
       },
-      
+
       render() {
         const container = document.getElementById('mapsContainer');
-        container.innerHTML = this.maps.map((m, idx) => {
-          const plans = this.plans[m.title] || [];
-          const tips = this.contributions[m.title] || [];
-          const plansByCategory = {};
-          tips.forEach(t => {
-            if (!plansByCategory[t.category]) plansByCategory[t.category] = [];
-            plansByCategory[t.category].push(t);
-          });
-          
+        container.innerHTML = this.maps.map(map => {
+          const plans = this.plans[map.title] || [];
+          const tips = this.tips[map.title] || [];
+
           return `
             <div class="map-card">
               <div class="map-header">
-                <h2 class="map-title">${m.title}</h2>
+                <h2 class="map-title">${map.title}</h2>
               </div>
               <div class="map-content">
-                <div class="plan-count">
-                  <div><strong>${plans.length}</strong> community route${plans.length !== 1 ? 's' : ''}</div>
+                <div class="stat-row">
+                  <span class="stat-label">Difficulty:</span>
+                  <span>${map.display_difficulty || map.difficulty || 'N/A'}</span>
                 </div>
-                
-                ${plans.length > 0 ? `
-                  <div class="plan-list">
-                    ${plans.slice(0, 5).map(p => `
-                      <div class="plan-item">
-                        <div class="plan-name">• ${p.title}</div>
-                        <div class="plan-meta">${p.creator || 'Anonymous'} • ${new Date(p.date).toLocaleDateString()}</div>
-                      </div>
-                    `).join('')}
-                    ${plans.length > 5 ? `<div class="plan-item" style="color: #3498db; font-weight: 600;">+${plans.length - 5} more</div>` : ''}
-                  </div>
-                ` : ''}
-                
+                <div class="stat-row">
+                  <span class="stat-label">Starting Money:</span>
+                  <span>${map.display_money || map.starting_money || 'N/A'}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Terrain:</span>
+                  <span>${map.roughness || 'N/A'}</span>
+                </div>
+
+                <div class="plan-count">
+                  <strong>${plans.length}</strong>
+                  Community route${plans.length !== 1 ? 's' : ''}
+                </div>
+
                 ${tips.length > 0 ? `
-                  <div class="tips-section">
-                    <div class="tips-title">💡 Community Tips (${tips.length})</div>
-                    ${tips.slice(0, 3).map(t => `
-                      <div class="tip-item">
-                        <strong>${t.category}:</strong> <span class="tip-text">${t.text.substring(0, 60)}${t.text.length > 60 ? '...' : ''}</span>
+                  <div class="tips-preview">
+                    <div class="tips-title">💡 Tips (${tips.length})</div>
+                    ${tips.slice(0, 2).map(t => `
+                      <div class="tip-line">
+                        <strong>${t.category}:</strong> ${t.text.substring(0, 50)}${t.text.length > 50 ? '...' : ''}
                       </div>
                     `).join('')}
+                    ${tips.length > 2 ? `<div class="tip-line" style="color: #3498db; font-weight: 600;">+${tips.length - 2} more tips</div>` : ''}
                   </div>
                 ` : ''}
-                
+
                 <div class="buttons">
-                  <button class="btn-create" onclick="createPlan('${m.title}')">🛣️ Create Route</button>
-                  <button class="btn-tip" onclick="addTip('${m.title}')">💡 Add Tip</button>
+                  <button class="btn-plan" onclick="createPlan('${map.title}')">🛣️ Create Route</button>
+                  <button class="btn-tip" onclick="addTip('${map.title}')">💡 Add Tip</button>
                 </div>
               </div>
             </div>
@@ -247,13 +245,6 @@
         }).join('');
       }
     };
-
-    async function init() {
-      await app.loadMaps();
-      app.loadPlans();
-      app.loadContributions();
-      app.render();
-    }
 
     function createPlan(mapTitle) {
       localStorage.setItem('selectedMapForPlanning', mapTitle);
@@ -265,7 +256,7 @@
       window.location.href = 'guide-contribute.html';
     }
 
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => app.init());
   </script>
 </body>
 </html>
