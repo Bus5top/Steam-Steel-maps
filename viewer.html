@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Steam & Steel — Community Plans</title>
+  <title>Steam & Steel — Browse Maps & Plans</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -25,20 +25,10 @@
       align-items: center;
     }
     header h1 { margin: 0; font-size: 1.8rem; }
-    a {
-      color: white;
-      text-decoration: none;
-      padding: 8px 12px;
-      border-radius: 4px;
-      transition: all 0.2s;
-    }
+    a { color: white; text-decoration: none; padding: 8px 12px; border-radius: 4px; transition: all 0.2s; }
     a:hover { background: rgba(255,255,255,0.2); }
     
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
     
     .intro {
       background: white;
@@ -47,277 +37,232 @@
       margin-bottom: 24px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    
     .intro h2 { margin: 0 0 12px 0; color: #2c3e50; }
-    .intro p { color: #666; line-height: 1.6; margin-bottom: 12px; }
+    .intro p { color: #666; line-height: 1.6; }
     
-    .controls {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    
-    input, select {
-      padding: 10px 14px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      font-size: 0.95rem;
-    }
-    
-    input { flex: 1; min-width: 200px; }
-    
-    .plans-grid {
+    .maps-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 24px;
+      margin-top: 24px;
     }
     
-    .plan-card {
+    .map-card {
       background: white;
-      border: 1px solid #ddd;
       border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       overflow: hidden;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      transition: all 0.3s;
+      transition: box-shadow 0.3s, transform 0.3s;
     }
+    .map-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateY(-2px); }
     
-    .plan-card:hover {
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      transform: translateY(-4px);
-    }
-    
-    .plan-header {
+    .map-header {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 16px;
+      padding: 20px;
+      text-align: center;
+    }
+    .map-title { font-size: 1.4rem; font-weight: 700; margin: 0; }
+    
+    .map-content {
+      padding: 20px;
     }
     
-    .plan-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
-    .plan-map { font-size: 0.9rem; opacity: 0.9; }
-    
-    .plan-content {
-      padding: 16px;
-    }
-    
-    .plan-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-      font-size: 0.85rem;
-    }
-    
-    .plan-stat {
+    .plan-count {
       background: #f9f9f9;
-      padding: 8px;
-      border-radius: 4px;
-      border-left: 2px solid #667eea;
-    }
-    
-    .stat-label { color: #666; text-transform: uppercase; font-weight: 600; }
-    .stat-value { font-weight: 700; color: #2c3e50; margin-top: 4px; }
-    
-    .plan-description {
-      color: #666;
+      padding: 12px;
+      border-radius: 6px;
+      text-align: center;
+      margin-bottom: 16px;
       font-size: 0.9rem;
-      line-height: 1.5;
-      margin-bottom: 12px;
-      min-height: 40px;
     }
+    .plan-count strong { color: #667eea; font-size: 1.2rem; }
     
-    .plan-meta {
-      font-size: 0.8rem;
-      color: #999;
-      display: flex;
-      justify-content: space-between;
-      border-top: 1px solid #eee;
+    .plan-list {
+      border-top: 1px solid #e0e0e0;
       padding-top: 12px;
+      margin-bottom: 16px;
+      max-height: 200px;
+      overflow-y: auto;
     }
     
-    .plan-actions {
+    .plan-item {
+      font-size: 0.9rem;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+      color: #666;
+    }
+    .plan-item:last-child { border-bottom: none; }
+    .plan-name { font-weight: 600; color: #2c3e50; }
+    .plan-meta { font-size: 0.85rem; color: #999; margin-top: 2px; }
+    
+    .tips-section {
+      background: #f0f8ff;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      border-left: 3px solid #3498db;
+    }
+    .tips-title { font-weight: 600; color: #2c3e50; margin-bottom: 6px; font-size: 0.85rem; }
+    .tip-item { font-size: 0.8rem; color: #666; margin-bottom: 4px; padding-left: 8px; border-left: 2px solid #3498db; }
+    .tip-item:last-child { margin-bottom: 0; }
+    .tip-text { font-style: italic; }
+    
+    .buttons {
       display: flex;
       gap: 8px;
-      margin-top: 12px;
+      margin-top: 16px;
     }
     
-    .plan-actions button {
+    button {
       flex: 1;
-      padding: 8px;
-      background: #3498db;
-      color: white;
+      padding: 10px 12px;
       border: none;
-      border-radius: 4px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: 600;
-      font-size: 0.85rem;
       transition: all 0.2s;
+      font-size: 0.85rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
     
-    .plan-actions button:hover { background: #2980b9; }
+    .btn-create { background: #3498db; color: white; }
+    .btn-create:hover { background: #2980b9; }
     
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: #999;
-    }
+    .btn-tip { background: #27ae60; color: white; }
+    .btn-tip:hover { background: #229954; }
     
-    .empty-state svg {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 16px;
-      opacity: 0.5;
+    @media (max-width: 768px) {
+      .maps-grid {
+        grid-template-columns: 1fr;
+      }
+      .buttons { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <header>
     <div class="header-content">
-      <h1>🤝 Community Plans</h1>
-      <a href="index.html">← Back to Home</a>
+      <h1>🗺️ All Maps</h1>
+      <a href="index.html">← Home</a>
     </div>
   </header>
 
   <div class="container">
     <div class="intro">
-      <h2>Shared Route Plans</h2>
-      <p>Browse route plans and strategies shared by the community. Learn from other players' approaches and find inspiration for your own routes!</p>
+      <h2>Choose a Map & Get Planning!</h2>
+      <p>Browse all available maps, see what routes the community has planned, and start creating your own routes. Pick a map, draw your route, and save it to help others!</p>
     </div>
 
-    <div class="controls">
-      <input type="text" id="searchInput" placeholder="Search by title or creator..." oninput="filterPlans()">
-      <select id="mapFilter" onchange="filterPlans()">
-        <option value="">All Maps</option>
-      </select>
-    </div>
-
-    <div class="plans-grid" id="plansGrid">
-      <div class="empty-state">
-        <p>No community plans yet. <a href="planner.html">Create one now!</a></p>
-      </div>
-    </div>
+    <div class="maps-grid" id="mapsContainer"></div>
   </div>
 
   <script>
-    let allPlans = [];
-    let maps = [];
+    let app = {
+      maps: [],
+      plans: {},
+      contributions: {},
+      
+      async loadMaps() {
+        try {
+          const res = await fetch('data/steam_steel_maps.json');
+          if (!res.ok) throw new Error('Failed to load maps');
+          const data = await res.json();
+          this.maps = data.maps || [];
+        } catch (err) {
+          alert('Error loading maps: ' + err.message);
+        }
+      },
+      
+      loadPlans() {
+        const stored = localStorage.getItem('steamsteelplans');
+        this.plans = stored ? JSON.parse(stored) : {};
+      },
+      
+      loadContributions() {
+        const stored = localStorage.getItem('steamsteelcontributions');
+        const all = stored ? JSON.parse(stored) : [];
+        this.contributions = {};
+        all.forEach(c => {
+          if (!this.contributions[c.map]) this.contributions[c.map] = [];
+          this.contributions[c.map].push(c);
+        });
+      },
+      
+      render() {
+        const container = document.getElementById('mapsContainer');
+        container.innerHTML = this.maps.map((m, idx) => {
+          const plans = this.plans[m.title] || [];
+          const tips = this.contributions[m.title] || [];
+          const plansByCategory = {};
+          tips.forEach(t => {
+            if (!plansByCategory[t.category]) plansByCategory[t.category] = [];
+            plansByCategory[t.category].push(t);
+          });
+          
+          return `
+            <div class="map-card">
+              <div class="map-header">
+                <h2 class="map-title">${m.title}</h2>
+              </div>
+              <div class="map-content">
+                <div class="plan-count">
+                  <div><strong>${plans.length}</strong> community route${plans.length !== 1 ? 's' : ''}</div>
+                </div>
+                
+                ${plans.length > 0 ? `
+                  <div class="plan-list">
+                    ${plans.slice(0, 5).map(p => `
+                      <div class="plan-item">
+                        <div class="plan-name">• ${p.title}</div>
+                        <div class="plan-meta">${p.creator || 'Anonymous'} • ${new Date(p.date).toLocaleDateString()}</div>
+                      </div>
+                    `).join('')}
+                    ${plans.length > 5 ? `<div class="plan-item" style="color: #3498db; font-weight: 600;">+${plans.length - 5} more</div>` : ''}
+                  </div>
+                ` : ''}
+                
+                ${tips.length > 0 ? `
+                  <div class="tips-section">
+                    <div class="tips-title">💡 Community Tips (${tips.length})</div>
+                    ${tips.slice(0, 3).map(t => `
+                      <div class="tip-item">
+                        <strong>${t.category}:</strong> <span class="tip-text">${t.text.substring(0, 60)}${t.text.length > 60 ? '...' : ''}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                
+                <div class="buttons">
+                  <button class="btn-create" onclick="createPlan('${m.title}')">🛣️ Create Route</button>
+                  <button class="btn-tip" onclick="addTip('${m.title}')">💡 Add Tip</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    };
 
     async function init() {
-      await loadMaps();
-      populateMapFilter();
-      await loadPlans();
-      renderPlans(allPlans);
+      await app.loadMaps();
+      app.loadPlans();
+      app.loadContributions();
+      app.render();
     }
 
-    async function loadMaps() {
-      try {
-        const res = await fetch('data/steam_steel_maps.json');
-        if (!res.ok) throw new Error('Failed to load');
-        const data = await res.json();
-        maps = data.maps || [];
-      } catch (err) {
-        console.error('Error loading maps:', err);
-      }
+    function createPlan(mapTitle) {
+      localStorage.setItem('selectedMapForPlanning', mapTitle);
+      window.location.href = 'planner.html';
     }
 
-    function populateMapFilter() {
-      const filter = document.getElementById('mapFilter');
-      const options = maps.map(m => `<option value="${m.title}">${m.title}</option>`).join('');
-      filter.innerHTML += options;
-    }
-
-    async function loadPlans() {
-      // For now, we'll use localStorage to store shared plans
-      // In a real app, this would fetch from a backend API
-      const stored = localStorage.getItem('steamsteelsharedplans');
-      allPlans = stored ? JSON.parse(stored) : [];
-      
-      // Add some demo plans if none exist
-      if (allPlans.length === 0) {
-        allPlans = [
-          {
-            id: 1,
-            title: "Safe C Route",
-            map: "Coal Valley",
-            creator: "StartWithC",
-            description: "A beginner-friendly route using Class C. Avoids steep grades.",
-            difficulty: "Easy",
-            downloads: 12,
-            rating: 4.5,
-            date: new Date().toISOString()
-          }
-        ];
-        localStorage.setItem('steamsteelsharedplans', JSON.stringify(allPlans));
-      }
-    }
-
-    function renderPlans(plans) {
-      const container = document.getElementById('plansGrid');
-      if (plans.length === 0) {
-        container.innerHTML = '<div class="empty-state"><p>No plans found. Try a different search!</p></div>';
-        return;
-      }
-      
-      container.innerHTML = plans.map(plan => `
-        <div class="plan-card">
-          <div class="plan-header">
-            <div class="plan-title">${plan.title}</div>
-            <div class="plan-map">📍 ${plan.map}</div>
-          </div>
-          <div class="plan-content">
-            <div class="plan-stats">
-              <div class="plan-stat">
-                <div class="stat-label">Difficulty</div>
-                <div class="stat-value">${plan.difficulty}</div>
-              </div>
-              <div class="plan-stat">
-                <div class="stat-label">Rating</div>
-                <div class="stat-value">★ ${plan.rating || 0}</div>
-              </div>
-            </div>
-            <div class="plan-description">${plan.description || 'No description'}</div>
-            <div class="plan-meta">
-              <span>👤 ${plan.creator || 'Anonymous'}</span>
-              <span>📥 ${plan.downloads || 0} downloads</span>
-            </div>
-            <div class="plan-actions">
-              <button onclick="viewPlan(${plan.id})">View Plan</button>
-              <button onclick="downloadPlan(${plan.id})">⬇ Export</button>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function filterPlans() {
-      const search = document.getElementById('searchInput').value.toLowerCase();
-      const map = document.getElementById('mapFilter').value;
-      
-      const filtered = allPlans.filter(p => {
-        const titleMatch = p.title.toLowerCase().includes(search);
-        const creatorMatch = (p.creator || '').toLowerCase().includes(search);
-        const mapMatch = !map || p.map === map;
-        return (titleMatch || creatorMatch) && mapMatch;
-      });
-      
-      renderPlans(filtered);
-    }
-
-    function viewPlan(id) {
-      const plan = allPlans.find(p => p.id === id);
-      if (!plan) return;
-      alert(`Plan: ${plan.title}\n\nIn the full version, this would open an interactive viewer of the shared route!`);
-    }
-
-    function downloadPlan(id) {
-      const plan = allPlans.find(p => p.id === id);
-      if (!plan) return;
-      
-      // Increase download count
-      plan.downloads = (plan.downloads || 0) + 1;
-      localStorage.setItem('steamsteelsharedplans', JSON.stringify(allPlans));
-      
-      alert(`✓ Plan downloaded!\n\nYou can import this plan code in the Route Planner.`);
+    function addTip(mapTitle) {
+      localStorage.setItem('selectedMapForTip', mapTitle);
+      window.location.href = 'guide-contribute.html';
     }
 
     document.addEventListener('DOMContentLoaded', init);
