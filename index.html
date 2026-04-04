@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Steam & Steel — Maps Planner</title>
+  <style>
+    body{font-family:system-ui,Arial,Helvetica,sans-serif;max-width:980px;margin:24px auto;padding:0 16px;color:#222}
+    header{display:flex;align-items:center;justify-content:space-between}
+    .map{border:1px solid #e6e6e6;padding:12px 14px;border-radius:8px;margin:12px 0}
+    .meta{font-size:0.9rem;color:#555;margin-bottom:8px}
+    pre{white-space:pre-wrap}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Steam & Steel — Map Planner</h1>
+    <a href="/docs/steam_steel_planner.md" style="font-size:0.9rem">Planner Guide</a>
+  </header>
+  <p>This site loads extracted map data from the repo. If you see a 404 on Vercel, make sure `index.html` and `vercel.json` are deployed to the project root.</p>
+
+  <div id="maps">Loading maps…</div>
+
+  <script>
+    async function load(){
+      try{
+        const res = await fetch('data/steam_steel_maps.json');
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const j = await res.json();
+        const maps = j.maps || [];
+        const out = document.getElementById('maps');
+        if(!maps.length){ out.innerText = 'No maps found in data/steam_steel_maps.json'; return }
+        out.innerHTML = maps.map(m=>{
+          const depot = (m.initial_depot||[]).slice(0,6).map(i=>`<li>${i}</li>`).join('');
+          const notes = (m.grade_curve_notes||[]).join('\n');
+          return `\n<div class="map">\n  <h2>${m.title}</h2>\n  <div class="meta">${m.difficulty||m.display_difficulty||''} — ${m.roughness||''} — Starter: ${m.starter_engine||''} — Money: ${m.starting_money||m.display_money||''}</div>\n  <div><strong>Initial depot</strong><ul>${depot}</ul></div>\n  ${notes ? `<details><summary>Grade / Curve notes</summary><pre>${notes}</pre></details>` : ''}\n</div>`
+        }).join('\n')
+      }catch(err){
+        document.getElementById('maps').innerText = 'Error loading data: '+err.message
+      }
+    }
+    load()
+  </script>
+</body>
+</html>
