@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Steam & Steel — Maps Planner</title>
+  <title>Steam & Steel — Map Planner & Community</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -15,7 +15,7 @@
       color: white;
     }
     header {
-      padding: 40px 24px;
+      padding: 40px 24px 20px;
       text-align: center;
     }
     header h1 {
@@ -28,6 +28,11 @@
       font-size: 1.2rem;
       opacity: 0.95;
       font-weight: 300;
+      margin-bottom: 12px;
+    }
+    header .tagline {
+      font-size: 0.95rem;
+      opacity: 0.8;
     }
     
     main {
@@ -42,7 +47,8 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 24px;
-      max-width: 900px;
+      max-width: 1000px;
+      width: 100%;
     }
     
     .card {
@@ -53,7 +59,20 @@
       box-shadow: 0 10px 40px rgba(0,0,0,0.2);
       transition: all 0.3s;
       color: #333;
+      position: relative;
+      overflow: hidden;
     }
+    
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
     .card:hover {
       transform: translateY(-8px);
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
@@ -75,21 +94,43 @@
       color: #666;
       margin-bottom: 24px;
       line-height: 1.6;
+      min-height: 60px;
     }
     
-    .card a {
+    .card a, .card button {
       display: inline-block;
       padding: 12px 24px;
       background: #667eea;
       color: white;
       text-decoration: none;
+      border: none;
       border-radius: 6px;
       font-weight: 600;
       transition: all 0.2s;
+      cursor: pointer;
+      font-size: 0.95rem;
     }
-    .card a:hover {
+    
+    .card a:hover, .card button:hover {
       background: #764ba2;
       transform: scale(1.05);
+    }
+    
+    .card.featured {
+      grid-column: auto;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .card.featured h2,
+    .card.featured p {
+      color: white;
+    }
+    
+    .card.featured a:hover,
+    .card.featured button:hover {
+      background: rgba(255,255,255,0.3);
+      color: white;
     }
     
     footer {
@@ -102,45 +143,55 @@
     @media (max-width: 640px) {
       header h1 { font-size: 2.5rem; }
       header p { font-size: 1rem; }
+      main { padding: 24px 12px; }
     }
   </style>
 </head>
 <body>
   <header>
     <h1>⚙️ Steam & Steel</h1>
-    <p>Interactive Map Editor & Planning Tool</p>
+    <p>Interactive Route Planner & Community Guide</p>
+    <div class="tagline">Plan your routes, share strategies, and master every map</div>
   </header>
 
   <main>
     <div class="cards">
-      <!-- Viewer Card -->
-      <div class="card">
-        <div class="card-icon">👁️</div>
-        <h2>Browse Maps</h2>
-        <p>Explore all Steam & Steel maps with details about difficulty, starter engines, and terrain roughness.</p>
-        <a href="viewer.html">Open Viewer →</a>
+      <!-- Main Planner Card (Featured) -->
+      <div class="card featured" style="grid-column: 1 / -1;">
+        <div class="card-icon">🛣️</div>
+        <h2>Start Planning Routes</h2>
+        <p>Pick an official map and draw your route plan. Use multiple colors for different layers, mark tunnels and stations, and save your strategies!</p>
+        <a href="planner.html">Open Route Planner →</a>
       </div>
 
-      <!-- Editor Card -->
+      <!-- Community Plans Card -->
       <div class="card">
-        <div class="card-icon">✏️</div>
-        <h2>Edit Maps</h2>
-        <p>Create, edit, and manage map entries. Update details, depot configs, planning notes, and more.</p>
-        <a href="editor.html">Open Editor →</a>
+        <div class="card-icon">🤝</div>
+        <h2>Community Plans</h2>
+        <p>Browse shared route plans from other players. Find inspiration, download complete strategies, and rate helpful contributions.</p>
+        <a href="viewer.html">View Community Plans →</a>
       </div>
 
-      <!-- Guide Card -->
+      <!-- Contribute to Guide Card -->
       <div class="card">
         <div class="card-icon">📖</div>
-        <h2>Planning Guide</h2>
-        <p>Learn map strategy, engine selection, and track planning tips from the official wiki documentation.</p>
-        <a href="docs/steam_steel_planner.md">Read Guide →</a>
+        <h2>Share Your Tips</h2>
+        <p>Help the community by sharing your map-specific strategies, terrain tips, and engine recommendations. Every tip helps!</p>
+        <a href="guide-contribute.html">Contribute Tips →</a>
+      </div>
+
+      <!-- Official Guide Card -->
+      <div class="card">
+        <div class="card-icon">📚</div>
+        <h2>Official Guide</h2>
+        <p>Read the comprehensive planning guide with map details, engine stats, cargo adjustments, and official strategy tips from creators.</p>
+        <a href="docs/steam_steel_planner.md">Read Full Guide →</a>
       </div>
     </div>
   </main>
 
   <footer>
-    <p>Steam & Steel Maps Repository • Built with ⚡ for Route Planning</p>
+    <p>Steam & Steel Community Tool • Build better routes together ⚡</p>
   </footer>
 </body>
 </html>

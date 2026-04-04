@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Steam & Steel — Route Planner</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Arial, sans-serif; }
+    body { display: flex; flex-direction: column; background: #f0f2f5; }
+    
+    header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+    header h1 { margin: 0; font-size: 1.5rem; }
+    .header-buttons { display: flex; gap: 12px; }
+    button, a { padding: 10px 16px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; font-weight: 600; transition: all 0.2s; font-size: 0.9rem; }
+    button:hover, a:hover { background: #2980b9; transform: translateY(-1px); }
+    button.danger { background: #e74c3c; }
+    button.danger:hover { background: #c0392b; }
+    button.success { background: #27ae60; }
+    button.success:hover { background: #229954; }
+    
+    main { flex: 1; display: flex; overflow: hidden; gap: 0; }
+    
+    .sidebar {
+      width: 300px;
+      background: white;
+      border-right: 1px solid #ddd;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+    }
+    
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: white;
+    }
+    
+    .map-info {
+      padding: 16px;
+      background: #f9f9f9;
+      border-bottom: 1px solid #ddd;
+    }
+    .map-info h2 { margin: 0 0 8px 0; font-size: 1.2rem; color: #2c3e50; }
+    .map-info p { margin: 4px 0; font-size: 0.9rem; color: #666; }
+    
+    .canvas-container {
+      flex: 1;
+      overflow: auto;
+      background: #f5f5f5;
+      position: relative;
+    }
+    
+    canvas { display: block; margin: auto; cursor: crosshair; background: white; border: 1px solid #ddd; }
+    
+    .tools-section {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #eee;
+    }
+    .tools-section h3 {
+      margin: 0 0 12px 0;
+      font-size: 0.95rem;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    
+    .tool-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .tool-btn {
+      padding: 10px;
+      background: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .tool-btn:hover { border-color: #3498db; background: #f9f9f9; }
+    .tool-btn.active { background: #3498db; color: white; border-color: #3498db; }
+    
+    .color-picker {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .color-option {
+      width: 100%;
+      height: 40px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .color-option:hover { border-color: #333; }
+    .color-option.active { border-color: #000; box-shadow: 0 0 0 2px white, 0 0 0 4px #000; }
+    
+    .info-box {
+      background: #f0f8ff;
+      padding: 12px;
+      border-left: 3px solid #3498db;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 8px;
+    }
+    
+    .save-section {
+      margin-top: auto;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    
+    .save-section button { width: 100%; margin-bottom: 8px; }
+    
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal.hidden { display: none; }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    
+    .modal-content h2 { margin: 0 0 16px 0; color: #2c3e50; }
+    .modal-content p { margin: 12px 0; color: #666; }
+    
+    .map-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 16px 0;
+    }
+    
+    .map-card {
+      padding: 12px;
+      background: #f9f9f9;
+      border: 2px solid #e6e6e6;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .map-card:hover { border-color: #3498db; background: #f0f8ff; }
+    .map-card-name { font-weight: 600; margin-bottom: 4px; }
+    .map-card-meta { font-size: 0.8rem; color: #666; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🛣️ Route Planner</h1>
+    <div class="header-buttons">
+      <button onclick="selectNewMap()">📍 Change Map</button>
+      <a href="index.html">← Home</a>
+    </div>
+  </header>
+
+  <!-- Map Selection Modal -->
+  <div id="mapSelector" class="modal">
+    <div class="modal-content">
+      <h2>Select Official Map</h2>
+      <p>Choose which map you'd like to plan a route for:</p>
+      <div class="map-list" id="mapList"></div>
+      <button onclick="closeModal()" style="width: 100%; margin-top: 16px;">Cancel</button>
+    </div>
+  </div>
+
+  <main>
+    <!-- Sidebar with Tools -->
+    <div class="sidebar">
+      <div class="map-info" id="mapInfo" style="padding: 0; margin-bottom: 16px;">
+        <h2 id="mapTitle">—</h2>
+        <p><strong>Engine:</strong> <span id="mapEngine">—</span></p>
+        <p><strong>Money:</strong> <span id="mapMoney">—</span></p>
+        <p><strong>Roughness:</strong> <span id="mapRoughness">—</span></p>
+      </div>
+
+      <div class="tools-section">
+        <h3>🎨 Drawing Tools</h3>
+        <div class="tool-buttons">
+          <button class="tool-btn active" data-tool="route" onclick="selectTool('route')">Route</button>
+          <button class="tool-btn" data-tool="tunnel" onclick="selectTool('tunnel')">Tunnel</button>
+          <button class="tool-btn" data-tool="station" onclick="selectTool('station')">Station</button>
+          <button class="tool-btn" data-tool="erase" onclick="selectTool('erase')">Erase</button>
+          <button class="tool-btn danger" data-tool="clear" onclick="clearAll()">Clear</button>
+        </div>
+      </div>
+
+      <div class="tools-section">
+        <h3>🎨 Colors</h3>
+        <div class="color-picker">
+          <div class="color-option active" style="background: #3b82f6;" onclick="selectColor('#3b82f6')"></div>
+          <div class="color-option" style="background: #ef4444;" onclick="selectColor('#ef4444')"></div>
+          <div class="color-option" style="background: #10b981;" onclick="selectColor('#10b981')"></div>
+          <div class="color-option" style="background: #f59e0b;" onclick="selectColor('#f59e0b')"></div>
+          <div class="color-option" style="background: #8b5cf6;" onclick="selectColor('#8b5cf6')"></div>
+          <div class="color-option" style="background: #1f2937;" onclick="selectColor('#1f2937')"></div>
+        </div>
+        <div class="info-box">💡 Tip: Use different colors for different route layers</div>
+      </div>
+
+      <div class="tools-section">
+        <h3>💾 Save Plan</h3>
+        <button class="success" onclick="exportPlan()" style="width: 100%; margin-bottom: 8px;">📥 Export Plan</button>
+        <textarea id="planCode" placeholder="Your plan code here..."></textarea>
+        <button onclick="importPlan()" style="width: 100%; margin-top: 8px;">📤 Import Code</button>
+      </div>
+
+      <div class="save-section">
+        <button class="success" onclick="savePlanToStorage()" style="width: 100%; margin-bottom: 8px;">✓ Save as Draft</button>
+        <small style="color: #666;">Saves locally in your browser</small>
+      </div>
+    </div>
+
+    <!-- Canvas Area -->
+    <div class="canvas-area">
+      <div class="map-info" id="canvasHeader" style="display: none;">
+        <p><small>Click & drag to draw routes • Click to place points • Right-click to undo • Keyboard: Z=undo, C=clear</small></p>
+      </div>
+      <div class="canvas-container">
+        <canvas id="plannerCanvas"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const app = {
+      maps: [],
+      selectedMap: null,
+      selectedMapIdx: null,
+      canvas: null,
+      ctx: null,
+      state: {
+        tool: 'route',
+        color: '#3b82f6',
+        routes: [],
+        tunnels: [],
+        stations: [],
+        history: []
+      },
+      isDrawing: false,
+      startX: 0,
+      startY: 0,
+
+      async init() {
+        this.canvas = document.getElementById('plannerCanvas');
+        this.ctx = this.canvas.getContext('2d');
+        this.loadLocalStorage();
+        await this.loadMaps();
+        this.setupCanvasEvents();
+        this.showMapSelector();
+      },
+
+      async loadMaps() {
+        try {
+          const res = await fetch('data/steam_steel_maps.json');
+          if (!res.ok) throw new Error('Failed to load maps');
+          const data = await res.json();
+          this.maps = data.maps || [];
+          this.renderMapSelector();
+        } catch (err) {
+          alert('Error loading maps: ' + err.message);
+        }
+      },
+
+      renderMapSelector() {
+        const list = document.getElementById('mapList');
+        list.innerHTML = this.maps.map((m, i) => `
+          <div class="map-card" onclick="app.selectMap(${i})">
+            <div class="map-card-name">${m.title}</div>
+            <div class="map-card-meta">${m.difficulty || '?'} • ${m.roughness || '?'} • ${m.starter_engine || '?'}</div>
+            <div class="map-card-meta">💰 ${m.display_money || m.starting_money || '?'}</div>
+          </div>
+        `).join('');
+      },
+
+      selectMap(idx) {
+        this.selectedMapIdx = idx;
+        this.selectedMap = this.maps[idx];
+        this.state.routes = [];
+        this.state.tunnels = [];
+        this.state.stations = [];
+        this.state.history = [];
+        this.loadLocalStorage();
+        this.updateMapInfo();
+        this.closeModal();
+        this.initCanvas();
+      },
+
+      updateMapInfo() {
+        if (!this.selectedMap) return;
+        document.getElementById('mapTitle').textContent = this.selectedMap.title;
+        document.getElementById('mapEngine').textContent = this.selectedMap.starter_engine || '—';
+        document.getElementById('mapMoney').textContent = this.selectedMap.display_money || this.selectedMap.starting_money || '—';
+        document.getElementById('mapRoughness').textContent = this.selectedMap.roughness || '—';
+        document.getElementById('canvasHeader').style.display = 'block';
+      },
+
+      initCanvas() {
+        if (!this.canvas) return;
+        this.canvas.width = this.canvas.offsetWidth;
+        this.canvas.height = this.canvas.offsetHeight;
+        this.drawBackground();
+        this.render();
+      },
+
+      drawBackground() {
+        const m = this.selectedMap;
+        if (!m) return;
+        
+        // Color based on roughness
+        const roughness = (m.roughness || 'Medium').toLowerCase();
+        let bgColor = '#e8e8e8';
+        
+        if (roughness.includes('very high')) bgColor = '#c9a87c';
+        else if (roughness.includes('high')) bgColor = '#d4b896';
+        else if (roughness.includes('medium')) bgColor = '#dcc9b3';
+        else if (roughness.includes('low')) bgColor = '#e8d9c3';
+        
+        this.ctx.fillStyle = bgColor;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        // Add texture/grid
+        this.ctx.strokeStyle = 'rgba(200, 200, 200, 0.3)';
+        this.ctx.lineWidth = 1;
+        for (let i = 0; i < this.canvas.width; i += 50) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(i, 0);
+          this.ctx.lineTo(i, this.canvas.height);
+          this.ctx.stroke();
+        }
+        for (let i = 0; i < this.canvas.height; i += 50) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(0, i);
+          this.ctx.lineTo(this.canvas.width, i);
+          this.ctx.stroke();
+        }
+      },
+
+      render() {
+        this.drawBackground();
+        
+        // Draw routes
+        this.state.routes.forEach(route => {
+          this.ctx.strokeStyle = route.color;
+          this.ctx.lineWidth = 3;
+          this.ctx.lineJoin = 'round';
+          this.ctx.lineCap = 'round';
+          this.ctx.beginPath();
+          this.ctx.moveTo(route.x1, route.y1);
+          this.ctx.lineTo(route.x2, route.y2);
+          this.ctx.stroke();
+        });
+        
+        // Draw tunnels
+        this.state.tunnels.forEach(t => {
+          this.ctx.fillStyle = t.color;
+          this.ctx.beginPath();
+          this.ctx.arc(t.x, t.y, 8, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.strokeStyle = '#000';
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+        });
+        
+        // Draw stations
+        this.state.stations.forEach(s => {
+          this.ctx.fillStyle = s.color;
+          this.ctx.fillRect(s.x - 10, s.y - 10, 20, 20);
+          this.ctx.strokeStyle = '#000';
+          this.ctx.lineWidth = 2;
+          this.ctx.strokeRect(s.x - 10, s.y - 10, 20, 20);
+        });
+      },
+
+      setupCanvasEvents() {
+        this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
+        this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+        this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
+        this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.addEventListener('keydown', (e) => this.onKeyDown(e));
+      },
+
+      onMouseDown(e) {
+        const rect = this.canvas.getBoundingClientRect();
+        this.startX = e.clientX - rect.left;
+        this.startY = e.clientY - rect.top;
+        this.isDrawing = true;
+      },
+
+      onMouseMove(e) {
+        if (!this.isDrawing) return;
+        const rect = this.canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        this.render();
+        
+        if (this.state.tool === 'route') {
+          this.ctx.strokeStyle = this.state.color;
+          this.ctx.lineWidth = 3;
+          this.ctx.lineJoin = 'round';
+          this.ctx.lineCap = 'round';
+          this.ctx.beginPath();
+          this.ctx.moveTo(this.startX, this.startY);
+          this.ctx.lineTo(x, y);
+          this.ctx.stroke();
+        }
+      },
+
+      onMouseUp(e) {
+        if (!this.isDrawing) return;
+        this.isDrawing = false;
+        
+        const rect = this.canvas.getBoundingClientRect();
+        const endX = e.clientX - rect.left;
+        const endY = e.clientY - rect.top;
+        
+        this.saveToHistory();
+        
+        if (this.state.tool === 'route') {
+          this.state.routes.push({
+            x1: this.startX, y1: this.startY,
+            x2: endX, y2: endY,
+            color: this.state.color
+          });
+        } else if (this.state.tool === 'tunnel') {
+          this.state.tunnels.push({ x: endX, y: endY, color: this.state.color });
+        } else if (this.state.tool === 'station') {
+          this.state.stations.push({ x: endX, y: endY, color: this.state.color });
+        } else if (this.state.tool === 'erase') {
+          this.eraseNear(endX, endY);
+        }
+        
+        this.render();
+      },
+
+      onKeyDown(e) {
+        if (e.key.toLowerCase() === 'z') this.undo();
+        if (e.key.toLowerCase() === 'c') this.clearAll();
+      },
+
+      eraseNear(x, y) {
+        const d = 15;
+        this.state.routes = this.state.routes.filter(r => {
+          const dx1 = r.x1 - x, dy1 = r.y1 - y;
+          const dx2 = r.x2 - x, dy2 = r.y2 - y;
+          const d1 = Math.sqrt(dx1*dx1 + dy1*dy1);
+          const d2 = Math.sqrt(dx2*dx2 + dy2*dy2);
+          return d1 > d && d2 > d;
+        });
+      },
+
+      saveToHistory() {
+        this.state.history.push({
+          routes: [...this.state.routes],
+          tunnels: [...this.state.tunnels],
+          stations: [...this.state.stations]
+        });
+        if (this.state.history.length > 20) this.state.history.shift();
+      },
+
+      undo() {
+        if (this.state.history.length === 0) return;
+        const prev = this.state.history.pop();
+        this.state.routes = prev.routes;
+        this.state.tunnels = prev.tunnels;
+        this.state.stations = prev.stations;
+        this.render();
+      },
+
+      clearAll() {
+        if (confirm('Clear all drawings?')) {
+          this.saveToHistory();
+          this.state.routes = [];
+          this.state.tunnels = [];
+          this.state.stations = [];
+          this.render();
+        }
+      },
+
+      exportPlan() {
+        const plan = JSON.stringify(this.state);
+        const code = btoa(plan);
+        document.getElementById('planCode').value = code;
+      },
+
+      importPlan() {
+        const code = document.getElementById('planCode').value.trim();
+        if (!code) return;
+        try {
+          const plan = JSON.parse(atob(code));
+          this.saveToHistory();
+          this.state.routes = plan.routes || [];
+          this.state.tunnels = plan.tunnels || [];
+          this.state.stations = plan.stations || [];
+          this.render();
+          alert('Plan imported!');
+        } catch {
+          alert('Invalid plan code');
+        }
+      },
+
+      savePlanToStorage() {
+        if (!this.selectedMap) return;
+        const plans = JSON.parse(localStorage.getItem('steamsteelplans') || '{}');
+        plans[this.selectedMap.title] = this.state;
+        localStorage.setItem('steamsteelplans', JSON.stringify(plans));
+        alert('Plan saved as draft!');
+      },
+
+      loadLocalStorage() {
+        if (!this.selectedMap) return;
+        const plans = JSON.parse(localStorage.getItem('steamsteelplans') || '{}');
+        if (plans[this.selectedMap.title]) {
+          const stored = plans[this.selectedMap.title];
+          this.state.routes = stored.routes || [];
+          this.state.tunnels = stored.tunnels || [];
+          this.state.stations = stored.stations || [];
+        }
+      },
+
+      showMapSelector() {
+        document.getElementById('mapSelector').classList.remove('hidden');
+      }
+    };
+
+    // Global functions for HTML onclick handlers
+    function selectNewMap() {
+      app.showMapSelector();
+    }
+
+    function closeModal() {
+      document.getElementById('mapSelector').classList.add('hidden');
+    }
+
+    function selectTool(tool) {
+      app.state.tool = tool;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-tool="${tool}"]`).classList.add('active');
+    }
+
+    function selectColor(color) {
+      app.state.color = color;
+      document.querySelectorAll('.color-option').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function clearAll() {
+      app.clearAll();
+    }
+
+    function exportPlan() {
+      app.exportPlan();
+    }
+
+    function importPlan() {
+      app.importPlan();
+    }
+
+    function savePlanToStorage() {
+      app.savePlanToStorage();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
+</body>
+</html>

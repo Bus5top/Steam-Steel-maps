@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Steam & Steel — Contribute to Planning Guide</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1a1a1a;
+    }
+    header {
+      background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      color: white;
+      padding: 24px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    }
+    .header-content {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { margin: 0; font-size: 1.8rem; }
+    a { color: white; text-decoration: none; padding: 8px 12px; border-radius: 4px; transition: all 0.2s; }
+    a:hover { background: rgba(255,255,255,0.2); }
+    
+    .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+    
+    .intro {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .intro h2 { margin: 0 0 12px 0; color: #2c3e50; }
+    .intro p { color: #666; line-height: 1.6; margin-bottom: 12px; }
+    
+    .editor-section {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .map-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+    
+    .map-btn {
+      padding: 16px;
+      background: #f9f9f9;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+    .map-btn:hover { border-color: #3498db; background: #f0f8ff; }
+    .map-btn.active { border-color: #3498db; background: #e8f4ff; }
+    
+    .form-group {
+      margin: 16px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
+    
+    input, textarea, select {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    
+    textarea { min-height: 120px; resize: vertical; }
+    
+    .form-hint {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 4px;
+      font-style: italic;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 12px 16px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-size: 0.95rem;
+    }
+    
+    button:hover { background: #2980b9; }
+    
+    button.success { background: #27ae60; }
+    button.success:hover { background: #229954; }
+    
+    button.danger { background: #e74c3c; }
+    button.danger:hover { background: #c0392b; }
+    
+    .contributions {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .contribution-item {
+      padding: 16px;
+      background: #f9f9f9;
+      border-left: 3px solid #3498db;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    
+    .contribution-map { font-weight: 600; color: #2c3e50; margin-bottom: 4px; }
+    .contribution-tip { color: #666; margin-bottom: 8px; }
+    .contribution-author { font-size: 0.85rem; color: #999; }
+    
+    .success-message {
+      background: #e8f8f3;
+      color: #27ae60;
+      padding: 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      display: none;
+    }
+    
+    .success-message.show { display: block; }
+    
+    .tips-section {
+      background: #f0f8ff;
+      padding: 16px;
+      border-left: 3px solid #3498db;
+      border-radius: 4px;
+      margin-top: 20px;
+    }
+    
+    .tips-section h3 { margin: 0 0 12px 0; color: #2c3e50; }
+    .tips-section ul { margin-left: 20px; color: #666; line-height: 1.8; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <h1>📖 Contribute to Planning Guide</h1>
+      <a href="index.html">← Back to Home</a>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="intro">
+      <h2>Help the Community!</h2>
+      <p>Share your route planning tips, strategies, and map-specific advice to help other players! Your contributions will appear in the planning guide and help everyone plan better routes.</p>
+      <p>Whether you've discovered an optimal route, tips for challenging terrain, or engine recommendations, we'd love to hear from you!</p>
+    </div>
+
+    <div class="editor-section">
+      <h2>Add a Tip</h2>
+      
+      <div class="success-message" id="successMsg">
+        ✓ Your tip has been added! It will appear in the planning guide soon. Thank you for contributing!
+      </div>
+
+      <div class="form-group">
+        <label>Which map is this tip for?</label>
+        <div class="map-selector" id="mapSelector"></div>
+        <input type="hidden" id="selectedMap">
+      </div>
+
+      <div class="form-group">
+        <label>Tip Category</label>
+        <select id="category">
+          <option value="">Select category...</option>
+          <option value="route">Route Strategy</option>
+          <option value="terrain">Terrain & Grades</option>
+          <option value="engine">Engine Selection</option>
+          <option value="cargo">Cargo Handling</option>
+          <option value="general">General Tips</option>
+        </select>
+        <div class="form-hint">What type of tip are you sharing?</div>
+      </div>
+
+      <div class="form-group">
+        <label>Your Tip / Strategy</label>
+        <textarea id="tipText" placeholder="Share your advice! Be specific and helpful.&#10;Example: 'The steep mountain pass requires Class D1 or better. Route around the northern valley to avoid the 8% grade...'"></textarea>
+        <div class="form-hint">Be detailed and specific. Include route recommendations, engine tips, or planning strategies.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Your Name (optional)</label>
+        <input type="text" id="author" placeholder="How should we credit you?">
+        <div class="form-hint">Leave blank to contribute anonymously</div>
+      </div>
+
+      <div class="buttons">
+        <button type="button" onclick="submitTip()" class="success">✓ Submit Tip</button>
+        <button type="button" onclick="clearForm()" class="danger">Clear</button>
+      </div>
+
+      <div class="tips-section">
+        <h3>💡 Tips for Great Contributions</h3>
+        <ul>
+          <li><strong>Be specific:</strong> Mention exact locations, grades, or engines</li>
+          <li><strong>Share experience:</strong> What worked or didn't work for you?</li>
+          <li><strong>Help others:</strong> Think about what would help a new player</li>
+          <li><strong>Be clear:</strong> Use simple language, avoid jargon when possible</li>
+          <li><strong>Add context:</strong> Why is this tip important? When should it be used?</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="contributions">
+      <h2>Recent Contributions</h2>
+      <div id="contributionsList"></div>
+    </div>
+  </div>
+
+  <script>
+    let maps = [];
+    let contributions = [];
+
+    async function init() {
+      await loadMaps();
+      loadContributions();
+      renderMapSelector();
+      renderContributions();
+    }
+
+    async function loadMaps() {
+      try {
+        const res = await fetch('data/steam_steel_maps.json');
+        if (!res.ok) throw new Error('Failed to load');
+        const data = await res.json();
+        maps = data.maps || [];
+      } catch (err) {
+        alert('Error loading maps: ' + err.message);
+      }
+    }
+
+    function renderMapSelector() {
+      const selector = document.getElementById('mapSelector');
+      selector.innerHTML = maps.map(m => `
+        <button type="button" class="map-btn" onclick="selectMap('${m.title}')">${m.title}</button>
+      `).join('');
+    }
+
+    function selectMap(title) {
+      document.getElementById('selectedMap').value = title;
+      document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function loadContributions() {
+      const stored = localStorage.getItem('steamsteelcontributions');
+      contributions = stored ? JSON.parse(stored) : [];
+    }
+
+    function renderContributions() {
+      const list = document.getElementById('contributionsList');
+      if (contributions.length === 0) {
+        list.innerHTML = '<p style="color: #999; text-align: center; padding: 24px;">No contributions yet. Be the first!</p>';
+        return;
+      }
+      
+      list.innerHTML = contributions.slice().reverse().map((c, i) => `
+        <div class="contribution-item">
+          <div class="contribution-map">📍 ${c.map}</div>
+          <div style="font-size: 0.85rem; color: #999; margin-bottom: 8px;">
+            <strong>${c.category.charAt(0).toUpperCase() + c.category.slice(1)}</strong>
+          </div>
+          <div class="contribution-tip">${c.text.substring(0, 150)}${c.text.length > 150 ? '...' : ''}</div>
+          <div class="contribution-author">
+            ${c.author ? '— ' + c.author : '— Anonymous contributor'}
+            ${new Date(c.date).toLocaleDateString()}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function submitTip() {
+      const map = document.getElementById('selectedMap').value;
+      const category = document.getElementById('category').value;
+      const text = document.getElementById('tipText').value.trim();
+      const author = document.getElementById('author').value.trim();
+
+      if (!map) {
+        alert('Please select a map');
+        return;
+      }
+      if (!category) {
+        alert('Please select a category');
+        return;
+      }
+      if (!text || text.length < 10) {
+        alert('Please write a tip (at least 10 characters)');
+        return;
+      }
+
+      const tip = {
+        map,
+        category,
+        text,
+        author: author || 'Anonymous',
+        date: new Date().toISOString()
+      };
+
+      contributions.push(tip);
+      localStorage.setItem('steamsteelcontributions', JSON.stringify(contributions));
+
+      // Show success message
+      const msg = document.getElementById('successMsg');
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 5000);
+
+      clearForm();
+      renderContributions();
+    }
+
+    function clearForm() {
+      document.getElementById('selectedMap').value = '';
+      document.getElementById('category').value = '';
+      document.getElementById('tipText').value = '';
+      document.getElementById('author').value = '';
+      document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
