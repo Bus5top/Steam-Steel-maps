@@ -186,6 +186,7 @@
         <h3>Map</h3>
         <button style="width: 100%; margin: 0;" onclick="selectNewMap()">Change Map</button>
         <div id="mapDisplay" style="margin-top: 8px; padding: 8px; background: #f9f9f9; border-radius: 6px; font-size: 0.9rem; font-weight: 600; color: #2c3e50;"></div>
+        <div id="mapInfo"></div>
       </div>
 
       <div class="section">
@@ -455,6 +456,13 @@
         if (!map) return;
         this.selectedMap = map;
         document.getElementById('mapDisplay').innerText = map.title;
+        document.getElementById('mapInfo').innerHTML = `
+          <div style="background: #f9f9f9; padding: 8px; border-radius: 6px; margin-top: 4px; font-size: 0.8rem; color: #666;">
+            <strong>${map.display_difficulty || map.difficulty}</strong> • 
+            Starting: <strong>${map.display_money || map.starting_money}</strong> • 
+            Terrain: <strong>${map.roughness}</strong>
+          </div>
+        `;
         this.closeModal();
         this.routes = [];
         this.tunnels = [];
@@ -471,7 +479,7 @@
 
         canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-        canvas.addEventListener('mouseup', () => this.handleMouseUp());
+        canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         canvas.addEventListener('mouseleave', () => this.state.drawing = false);
 
         window.addEventListener('resize', () => {
@@ -549,8 +557,33 @@
       render() {
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#fafafa';
+        ctx.fillStyle = '#f5f5f5';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Map-like background with terrain pattern
+        if (this.selectedMap) {
+          // Base terrain color based on roughness
+          let baseColor = '#e8f5e8'; // light green for low roughness
+          if (this.selectedMap.roughness && this.selectedMap.roughness.toLowerCase().includes('high')) {
+            baseColor = '#f5e8e8'; // light red for high roughness
+          } else if (this.selectedMap.roughness && this.selectedMap.roughness.toLowerCase().includes('medium')) {
+            baseColor = '#f5f0e8'; // light yellow for medium
+          }
+          
+          ctx.fillStyle = baseColor;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Add some terrain texture
+          ctx.fillStyle = 'rgba(0,0,0,0.05)';
+          for (let i = 0; i < 20; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const size = Math.random() * 30 + 10;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
 
         // Grid
         ctx.strokeStyle = '#e0e0e0';
@@ -566,6 +599,17 @@
           ctx.moveTo(0, i);
           ctx.lineTo(canvas.width, i);
           ctx.stroke();
+        }
+
+        // Show message if no map selected
+        if (!this.selectedMap) {
+          ctx.fillStyle = '#666';
+          ctx.font = '20px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('Select a map to start planning routes', canvas.width / 2, canvas.height / 2);
+          ctx.font = '14px Arial';
+          ctx.fillText('This is a conceptual planning canvas - draw your route ideas!', canvas.width / 2, canvas.height / 2 + 30);
+          return; // Don't draw routes/tunnels if no map selected
         }
 
         // Routes
