@@ -585,29 +585,39 @@
         ctx.fillStyle = '#f5f5f5';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Map-like background with terrain pattern
+        // Map-like background based on selected map
         if (this.selectedMap) {
-          // Base terrain color based on roughness
           let baseColor = '#e8f5e8'; // light green for low roughness
           if (this.selectedMap.roughness && this.selectedMap.roughness.toLowerCase().includes('high')) {
             baseColor = '#f5e8e8'; // light red for high roughness
           } else if (this.selectedMap.roughness && this.selectedMap.roughness.toLowerCase().includes('medium')) {
             baseColor = '#f5f0e8'; // light yellow for medium
           }
-          
+
           ctx.fillStyle = baseColor;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
-          // Add some terrain texture
-          ctx.fillStyle = 'rgba(0,0,0,0.05)';
-          for (let i = 0; i < 20; i++) {
-            const x = Math.random() * canvas.width;
-            const y = Math.random() * canvas.height;
-            const size = Math.random() * 30 + 10;
+
+          // Subtle terrain contour lines
+          ctx.strokeStyle = 'rgba(0,0,0,0.08)';
+          ctx.lineWidth = 1;
+          for (let row = 0; row < 10; row++) {
+            const y = 40 + row * 35;
             ctx.beginPath();
-            ctx.arc(x, y, size, 0, Math.PI * 2);
-            ctx.fill();
+            for (let x = 0; x <= canvas.width; x += 20) {
+              const offset = Math.sin((x + row * 50) / 60) * 10 + row * 3;
+              const pointY = Math.min(canvas.height - 20, Math.max(40, y + offset));
+              if (x === 0) ctx.moveTo(x, pointY);
+              else ctx.lineTo(x, pointY);
+            }
+            ctx.stroke();
           }
+
+          ctx.fillStyle = 'rgba(0,0,0,0.65)';
+          ctx.font = '18px Arial';
+          ctx.textAlign = 'left';
+          ctx.fillText(this.selectedMap.title, 18, 30);
+          ctx.font = '12px Arial';
+          ctx.fillText(`${this.selectedMap.display_difficulty || this.selectedMap.difficulty} • ${this.selectedMap.display_money || this.selectedMap.starting_money} • ${this.selectedMap.roughness}`, 18, 48);
         }
 
         // Grid
