@@ -186,8 +186,7 @@
         <h3>Map</h3>
         <button style="width: 100%; margin: 0;" onclick="selectNewMap()">Change Map</button>
         <div id="mapDisplay" style="margin-top: 8px; padding: 8px; background: #f9f9f9; border-radius: 6px; font-size: 0.9rem; font-weight: 600; color: #2c3e50;"></div>
-        <div id="mapInfo"></div>
-      </div>
+        <div id="mapInfo"></div>        <div id="mapDetails" style="margin-top: 12px;"></div>      </div>
 
       <div class="section">
         <h3>Tools</h3>
@@ -225,6 +224,11 @@
         <input type="text" id="planTitle" placeholder="Plan name (optional)" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
         <input type="text" id="planCreator" placeholder="Your name (optional)" style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
         <button onclick="savePlanToStorage()" style="background: #27ae60; flex: 0.5;">💾 Save</button>
+      </div>
+      <div class="save-section" style="flex-wrap: wrap; gap: 8px;">
+        <input type="text" id="shareCodeOutput" placeholder="Share code appears here" readonly style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+        <button onclick="sharePlanCode()" style="background: #9b59b6; flex: 0.4;">🔗 Copy</button>
+        <button onclick="importPlan()" style="background: #f39c12; flex: 0.4;">📥 Paste</button>
       </div>
     </div>
   </main>
@@ -421,7 +425,14 @@
         await this.loadMaps();
         this.setupCanvas();
         this.renderMapSelector();
-        
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        if (code) {
+          this.loadPlanFromCode(code);
+          return;
+        }
+
         const selected = localStorage.getItem('selectedMapForPlanning');
         if (selected) {
           this.selectMap(selected);
@@ -451,7 +462,7 @@
         `).join('');
       },
 
-      selectMap(title) {
+      selectMap(title, preservePlan = false) {
         const map = this.maps.find(m => m.title === title);
         if (!map) return;
         this.selectedMap = map;
@@ -463,11 +474,25 @@
             Terrain: <strong>${map.roughness}</strong>
           </div>
         `;
+        const details = `
+          <div style="margin-top: 12px; padding: 12px; border-radius: 8px; background: #fff; border: 1px solid #eee; color: #444; font-size: 0.85rem; line-height: 1.5;">
+            <div><strong>Starter engine:</strong> ${map.starter_engine || 'N/A'}</div>
+            <div><strong>Cargo adjustment:</strong> ${map.cargo_adjustment || 'N/A'}</div>
+            <div style="margin-top: 8px;"><strong>Initial depot items:</strong></div>
+            <ul style="margin: 8px 0 0 18px; color: #555;">
+              ${(map.initial_depot || []).map(item => `<li>${item}</li>`).join('')}
+            </ul>
+            ${map.grade_curve_notes?.length ? `<div style="margin-top: 10px;"><strong>Notes:</strong> ${map.grade_curve_notes[0]}</div>` : ''}
+          </div>
+        `;
+        document.getElementById('mapDetails').innerHTML = details;
         this.closeModal();
-        this.routes = [];
-        this.tunnels = [];
-        this.stations = [];
-        this.history = [];
+        if (!preservePlan) {
+          this.routes = [];
+          this.tunnels = [];
+          this.stations = [];
+          this.history = [];
+        }
         this.render();
       },
 
@@ -695,16 +720,51 @@
       },
 
       exportPlan() {
-        const data = { routes: this.routes, tunnels: this.tunnels, stations: this.stations, map: this.selectedMap?.title };
-        const encoded = btoa(JSON.stringify(data));
-        alert('Code:\n\n' + encoded + '\n\nShare this code!');
+        const code = this.getShareCode();
+        if (!code) return;
+        alert('Code:\n\n' + code + '\n\nShare this code with a friend or paste it back into the planner.');
+      },
+
+      getShareCode() {
+        if (!this.selectedMap) {
+          alert('Please select a map first');
+          return null;
+        }
+
+        const data = {
+          map: this.selectedMap.title,
+          routes: this.routes,
+          tunnels: this.tunnels,
+          stations: this.stations
+        };
+        return btoa(JSON.stringify(data));
+      },
+
+      sharePlanCode() {
+        const code = this.getShareCode();
+        if (!code) return;
+        const output = document.getElementById('shareCodeOutput');
+        output.value = code;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(code).catch(() => {});
+        }
+        alert('Share code generated and copied! Paste it back into the planner or send it to a friend.');
       },
 
       importPlan() {
         const code = prompt('Paste the code here:');
         if (!code) return;
+        this.loadPlanFromCode(code);
+      },
+
+      loadPlanFromCode(code) {
         try {
           const data = JSON.parse(atob(code));
+          if (data.map) {
+            const map = this.maps.find(m => m.title === data.map);
+            if (map) this.selectMap(map.title, true);
+            else alert('Map from code not found. Please select a map manually.');
+          }
           this.routes = data.routes || [];
           this.tunnels = data.tunnels || [];
           this.stations = data.stations || [];
@@ -713,6 +773,7 @@
           alert('✓ Plan imported!');
         } catch (err) {
           alert('Invalid code');
+          this.showMapSelector();
         }
       },
 

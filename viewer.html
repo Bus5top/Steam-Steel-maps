@@ -386,6 +386,28 @@
                   <span class="stat-label">Terrain:</span>
                   <span>${map.roughness || 'N/A'}</span>
                 </div>
+                <div class="stat-row">
+                  <span class="stat-label">Cargo adj:</span>
+                  <span>${map.cargo_adjustment || 'N/A'}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Starter engine:</span>
+                  <span>${map.starter_engine || 'N/A'}</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Depot items:</span>
+                  <span>${(map.initial_depot?.length || 0)} items</span>
+                </div>
+                <div class="stat-row">
+                  <span class="stat-label">Created by:</span>
+                  <span>${(map.creator || 'Community').split('\n')[0]}</span>
+                </div>
+                ${map.grade_curve_notes?.length ? `
+                <div class="stat-row">
+                  <span class="stat-label">Note:</span>
+                  <span>${map.grade_curve_notes[0]}</span>
+                </div>
+                ` : ''}
 
                 <div class="plan-count">
                   <strong>${plans.length}</strong>
