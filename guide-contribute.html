@@ -198,6 +198,174 @@
   </div>
 
   <script>
+    // Embedded maps data for fallback when fetch fails
+    const embeddedMapsData = {
+  "maps": [
+    {
+      "title": "Badlands",
+      "starter_engine": "Class C",
+      "starting_money": "$30000",
+      "roughness": "Low/Medium",
+      "difficulty": "Medium",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "August 26th, 2023",
+      "display_money": "$30000",
+      "display_difficulty": "Medium",
+      "cargo_adjustment": "+0%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "5x 17' Stake Wagons"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Coal Valley",
+      "starter_engine": "Class C",
+      "starting_money": "$20000",
+      "roughness": "Low",
+      "difficulty": "Easy",
+      "creator": "GregTame",
+      "date_added": "June 25th, 2023",
+      "display_money": "$20000",
+      "display_difficulty": "Easy",
+      "cargo_adjustment": "+0%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "3x 17' Stake Wagons",
+        "3x [[20' Flat Wagon|20' Flat Wagons]]",
+        "2x [[10 Ton Ballast Wagon|10 Ton Ballast Wagons]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Gold Rush",
+      "starter_engine": "Class C",
+      "starting_money": "$40000",
+      "roughness": "High",
+      "difficulty": "Hard",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "July 20th, 2023",
+      "display_money": "$40000",
+      "display_difficulty": "Hard",
+      "cargo_adjustment": "+15%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "4x 17' Stake Wagons",
+        "1x [[20' Flat Wagon]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Hazel Sierra",
+      "starter_engine": "Class D1",
+      "starting_money": "30,000 $",
+      "roughness": "High",
+      "difficulty": "Hard",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "Autumn/Fall 2024",
+      "display_money": "$30000",
+      "display_difficulty": "Hard",
+      "cargo_adjustment": "Unknown",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class D1]] + [[KdNS 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "4x [[8 Ton Ore Hopper|8 Ton Ore Hoppers]]",
+        "3x [[14' Stake Wagon|14' Stake Wagons]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Maple Ridge",
+      "starter_engine": "Class A2",
+      "starting_money": "40,000 $",
+      "roughness": "Medium",
+      "difficulty": "Medium",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "",
+      "display_money": "$40000",
+      "display_difficulty": "Medium",
+      "cargo_adjustment": "+23%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class A2]] + [[RSR 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "5 17' Stake Wagons",
+        "[[Brake Van]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Misty Summit",
+      "starter_engine": "Class A0",
+      "starting_money": "60,000 $",
+      "roughness": "Very high",
+      "difficulty": "Hard - Very Hard",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "May 06, 2024",
+      "display_money": "$60000",
+      "display_difficulty": "Hard - Very Hard",
+      "cargo_adjustment": "+200%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class A0]] + [[KdNS 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "3x 17' Stake Wagons",
+        "2x [[14 Ton Open Wagon|14 Ton Open Wagons]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Scarlet Heights",
+      "starter_engine": "Class C",
+      "starting_money": "$60000",
+      "roughness": "Very High",
+      "difficulty": "Very Hard",
+      "creator": "GregTame",
+      "date_added": "July 9th, 2023",
+      "display_money": "$60000",
+      "display_difficulty": "Very Hard",
+      "cargo_adjustment": "+23%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "3x 17' Stake Wagons",
+        "2x [[10 Ton Ballast Wagon|10 Ton Ballast Wagons]]"
+      ],
+      "grade_curve_notes": [
+        "Due to the rough terrain, laying tracks will be difficult and expensive. The '''''grade''''' setting is extremely important while playing on this map as you'll need to make a lot of sloped tracks to reach different [[Industries]]. It is recommended to use the grade setting to avoid accidentally making an incline that's too steep for a locomotive to drive up."
+      ]
+    },
+    {
+      "title": "Stormy Coast",
+      "starter_engine": "Class A1",
+      "starting_money": "$40000",
+      "roughness": "Medium/High",
+      "difficulty": "Medium",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "December 17th, 2023",
+      "display_money": "$40000",
+      "display_difficulty": "Medium",
+      "cargo_adjustment": "-31%",
+      "initial_depot": [
+        "Three tracks, two switches, and a buffer",
+        "[[Class A1]] (unique variant) + [[RSR 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "6x 17' Stake Wagons",
+        "2x [[10 Ton Ballast Wagon|10 Ton Ballast Wagons]]"
+      ],
+      "grade_curve_notes": []
+    }
+  ]
+};
+
     let app = {
       maps: [],
       tips: [],
@@ -218,11 +386,13 @@
       async loadMaps() {
         try {
           const res = await fetch('data/steam_steel_maps.json');
-          if (!res.ok) throw new Error('Failed to load maps');
+          if (!res.ok) throw new Error('Failed to load maps from server');
           const data = await res.json();
           this.maps = data.maps || [];
         } catch (err) {
-          alert('Error loading maps: ' + err.message);
+          console.warn('Failed to load maps from server, using embedded data:', err.message);
+          // Fallback to embedded data
+          this.maps = embeddedMapsData.maps || [];
         }
       },
 

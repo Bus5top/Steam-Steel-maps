@@ -404,6 +404,378 @@
   </div>
 
   <script>
+    // Embedded data for fallback when fetch fails
+    const embeddedMapsData = {
+  "maps": [
+    {
+      "title": "Badlands",
+      "starter_engine": "Class C",
+      "starting_money": "$30000",
+      "roughness": "Low/Medium",
+      "difficulty": "Medium",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "August 26th, 2023",
+      "display_money": "$30000",
+      "display_difficulty": "Medium",
+      "cargo_adjustment": "+0%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "5x 17' Stake Wagons"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Coal Valley",
+      "starter_engine": "Class C",
+      "starting_money": "$20000",
+      "roughness": "Low",
+      "difficulty": "Easy",
+      "creator": "GregTame",
+      "date_added": "June 25th, 2023",
+      "display_money": "$20000",
+      "display_difficulty": "Easy",
+      "cargo_adjustment": "+0%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "3x 17' Stake Wagons",
+        "3x [[20' Flat Wagon|20' Flat Wagons]]",
+        "2x [[10 Ton Ballast Wagon|10 Ton Ballast Wagons]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Gold Rush",
+      "starter_engine": "Class C",
+      "starting_money": "$40000",
+      "roughness": "High",
+      "difficulty": "Hard",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "July 20th, 2023",
+      "display_money": "$40000",
+      "display_difficulty": "Hard",
+      "cargo_adjustment": "+15%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "4x 17' Stake Wagons",
+        "1x [[20' Flat Wagon]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Hazel Sierra",
+      "starter_engine": "Class D1",
+      "starting_money": "30,000 $",
+      "roughness": "High",
+      "difficulty": "Hard",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "Autumn/Fall 2024",
+      "display_money": "$30000",
+      "display_difficulty": "Hard",
+      "cargo_adjustment": "Unknown",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class D1]] + [[KdNS 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "4x [[8 Ton Ore Hopper|8 Ton Ore Hoppers]]",
+        "3x [[14' Stake Wagon|14' Stake Wagons]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Maple Ridge",
+      "starter_engine": "Class A2",
+      "starting_money": "40,000 $",
+      "roughness": "Medium",
+      "difficulty": "Medium",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "",
+      "display_money": "$40000",
+      "display_difficulty": "Medium",
+      "cargo_adjustment": "+23%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class A2]] + [[RSR 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "5 17' Stake Wagons",
+        "[[Brake Van]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Misty Summit",
+      "starter_engine": "Class A0",
+      "starting_money": "60,000 $",
+      "roughness": "Very high",
+      "difficulty": "Hard - Very Hard",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "May 06, 2024",
+      "display_money": "$60000",
+      "display_difficulty": "Hard - Very Hard",
+      "cargo_adjustment": "+200%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class A0]] + [[KdNS 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "3x 17' Stake Wagons",
+        "2x [[14 Ton Open Wagon|14 Ton Open Wagons]]"
+      ],
+      "grade_curve_notes": []
+    },
+    {
+      "title": "Scarlet Heights",
+      "starter_engine": "Class C",
+      "starting_money": "$60000",
+      "roughness": "Very High",
+      "difficulty": "Very Hard",
+      "creator": "GregTame",
+      "date_added": "July 9th, 2023",
+      "display_money": "$60000",
+      "display_difficulty": "Very Hard",
+      "cargo_adjustment": "+23%",
+      "initial_depot": [
+        "Two tracks and a switch",
+        "[[Class C]]",
+        "[[Coaling Station]]",
+        "3x 17' Stake Wagons",
+        "2x [[10 Ton Ballast Wagon|10 Ton Ballast Wagons]]"
+      ],
+      "grade_curve_notes": [
+        "Due to the rough terrain, laying tracks will be difficult and expensive. The '''''grade''''' setting is extremely important while playing on this map as you'll need to make a lot of sloped tracks to reach different [[Industries]]. It is recommended to use the grade setting to avoid accidentally making an incline that's too steep for a locomotive to drive up."
+      ]
+    },
+    {
+      "title": "Stormy Coast",
+      "starter_engine": "Class A1",
+      "starting_money": "$40000",
+      "roughness": "Medium/High",
+      "difficulty": "Medium",
+      "creator": "meowsandstuff\nGregTame",
+      "date_added": "December 17th, 2023",
+      "display_money": "$40000",
+      "display_difficulty": "Medium",
+      "cargo_adjustment": "-31%",
+      "initial_depot": [
+        "Three tracks, two switches, and a buffer",
+        "[[Class A1]] (unique variant) + [[RSR 2-Axle Tender]]",
+        "[[Coaling Station]]",
+        "6x 17' Stake Wagons",
+        "2x [[10 Ton Ballast Wagon|10 Ton Ballast Wagons]]"
+      ],
+      "grade_curve_notes": []
+    }
+  ]
+};
+
+    // Embedded locomotives data
+    const embeddedEnginesData = {
+      "locomotives": [
+        {
+          "title": "Bee",
+          "name": "RSR Type AA Electric prototype",
+          "weight": "Unknown",
+          "tractive_effort": "7 500",
+          "top_speed": "26",
+          "coal_capacity": "N/A - Electric Locomotive",
+          "cost": "Not Buyable|caption-image0-4-0 Electric Engine"
+        },
+        {
+          "title": "Class A",
+          "name": "RSR 1BST Class A",
+          "weight": "21t",
+          "tractive_effort": "15522",
+          "top_speed": "26 mph",
+          "coal_capacity": "320 kg",
+          "cost": "$10197\nCurrently Unobtainable"
+        },
+        {
+          "title": "Class A0",
+          "name": "KdNS Type 2An'2 Class A0",
+          "weight": "9.1t",
+          "tractive_effort": "11737",
+          "top_speed": "26",
+          "coal_capacity": "Null, Requires tender",
+          "cost": "$5114\n$4101 w/Trainworks"
+        },
+        {
+          "title": "Class A1",
+          "name": "RSR Type B'n2st Class A1",
+          "weight": "12.3t",
+          "tractive_effort": "14671",
+          "top_speed": "21 mph",
+          "coal_capacity": "N/A (requires tender)",
+          "cost": "$5714\n$4581 w/Trainworks"
+        },
+        {
+          "title": "Class A2",
+          "name": "RSR Type 1B'n2st Class A2",
+          "weight": "15.8t",
+          "tractive_effort": "13796",
+          "top_speed": "26 mph",
+          "coal_capacity": "Null. Requires tender",
+          "cost": "$7064\n$5661 w/[[Trainworks]]"
+        },
+        {
+          "title": "Class B",
+          "name": "KdNS Type 2'B'n2 Class B",
+          "weight": "31.5t",
+          "tractive_effort": "30653",
+          "top_speed": "56 mph",
+          "coal_capacity": "Null. Requires tender",
+          "cost": "$26652\n$21332 w/Trainworks"
+        },
+        {
+          "title": "Class B2",
+          "name": "KdNS Type C'n2 Class B2",
+          "weight": "31.5t",
+          "tractive_effort": "32466",
+          "top_speed": "29 mph",
+          "coal_capacity": "Null. Requires tender",
+          "cost": "$23652\n$18932 w/Trainworks"
+        },
+        {
+          "title": "Class C",
+          "name": "RSR 1A1T Class C",
+          "weight": "21.5t",
+          "tractive_effort": "9769",
+          "top_speed": "33 mph",
+          "coal_capacity": "650 kg",
+          "cost": "$9462\n$7580 w/Trainworks"
+        },
+        {
+          "title": "Class D1",
+          "name": "KdNS Type Bn'2 Class D1",
+          "weight": "22.6t",
+          "tractive_effort": "23411",
+          "top_speed": "24 mph",
+          "coal_capacity": "Null, Requires tender",
+          "cost": "$11114\n$8901 w/Trainworks"
+        },
+        {
+          "title": "Class D2",
+          "name": "KdNS Type B2n'2 Class D2{{Speculation",
+          "weight": "",
+          "tractive_effort": "",
+          "top_speed": "",
+          "coal_capacity": "",
+          "cost": ""
+        },
+        {
+          "title": "Class E",
+          "name": "RSR B1T Class E",
+          "weight": "26t",
+          "tractive_effort": "20527",
+          "top_speed": "26 mph",
+          "coal_capacity": "1080 kg",
+          "cost": "$20817\n$16664 w/Trainworks"
+        },
+        {
+          "title": "Class F",
+          "name": "RSR Type 1A1'N2 Class F",
+          "weight": "25.5t",
+          "tractive_effort": "20684",
+          "top_speed": "41 mph",
+          "coal_capacity": "Null. Requires tender",
+          "cost": "$15155\n$12134 w/Trainworks"
+        },
+        {
+          "title": "Class G",
+          "name": "RSR CT Glass G",
+          "weight": "27t  + 9t with tender",
+          "tractive_effort": "29809",
+          "top_speed": "19 mph",
+          "coal_capacity": "N/A (requires tender)",
+          "cost": "$14652 \n$11732 w/ Trainworks"
+        },
+        {
+          "title": "Class H",
+          "name": "KdNS Type Dn Class H",
+          "weight": "40.5t",
+          "tractive_effort": "44478",
+          "top_speed": "19 mph",
+          "coal_capacity": "1372 kg",
+          "cost": "$32652\n$26132 w/Trainworks"
+        },
+        {
+          "title": "Class H2",
+          "name": "KdNS Type Dn Class H2",
+          "weight": "39.8t",
+          "tractive_effort": "45227",
+          "top_speed": "30 mph",
+          "coal_capacity": "Null. Requires tender",
+          "cost": "$37152\n$29732 w/Trainworks"
+        },
+        {
+          "title": "Class I",
+          "name": "RSR Type 1B'WT Class I",
+          "weight": "33t",
+          "tractive_effort": "24513",
+          "top_speed": "46",
+          "coal_capacity": "750kg",
+          "cost": "$25655\n$20524 w/ [[Trainworks]]"
+        },
+        {
+          "title": "Class J2",
+          "name": "RSR Type 1C'N2 Class J2",
+          "weight": "35.5t",
+          "tractive_effort": "39796",
+          "top_speed": "38 mph",
+          "coal_capacity": "Null. Requires tender",
+          "cost": "$27774\n$22205 w/Trainworks"
+        },
+        {
+          "title": "Class K1",
+          "name": "RSR Type C'N2 Class K1",
+          "weight": "32.9t",
+          "tractive_effort": "34348",
+          "top_speed": "34 mph",
+          "coal_capacity": "Null, Requires tender",
+          "cost": "$26244\n$21005 w/Trainworks"
+        },
+        {
+          "title": "Class K2",
+          "name": "RSR Type C1'NST Class K2",
+          "weight": "42.9t",
+          "tractive_effort": "41991",
+          "top_speed": "24 mph",
+          "coal_capacity": "1300",
+          "cost": "$33744\n$27005 w/Trainworks"
+        },
+        {
+          "title": "Class N",
+          "name": "KdNS Type C'nt Class N",
+          "weight": "26.5t",
+          "tractive_effort": "25048",
+          "top_speed": "19 mph",
+          "coal_capacity": "700 kg",
+          "cost": "$19602\n$15692 w/Trainworks"
+        },
+        {
+          "title": "Class P",
+          "name": "RSR Type C1'T Class P",
+          "weight": "37 tons",
+          "tractive_effort": "30047",
+          "top_speed": "51 mph",
+          "coal_capacity": "1440",
+          "cost": "$34465\n$27734 (with [[Trainworks]])"
+        },
+        {
+          "title": "Coffeepot",
+          "name": "StiG Type Bn'WT Coffeepot",
+          "weight": "14.1t (Closed)\n13.9t (Open)",
+          "tractive_effort": "15539",
+          "top_speed": "14 mph",
+          "coal_capacity": "400",
+          "cost": "$7214\n$5781 w/Trainworks"
+        }
+      ]
+    };
+
     const app = {
       maps: [],
       engines: [],
@@ -416,14 +788,20 @@
             fetch('data/steam_steel_maps.json'),
             fetch('data/steam_steel_locomotives.json')
           ]);
-          if (!mapsRes.ok || !enginesRes.ok) throw new Error('Failed to load');
+          if (!mapsRes.ok || !enginesRes.ok) throw new Error('Failed to load from server');
           this.maps = (await mapsRes.json()).maps || [];
           this.engines = (await enginesRes.json()).locomotives || [];
           this.filtered = [...this.maps];
           this.renderMapList();
           this.renderEngineTable();
         } catch (err) {
-          alert('Error: ' + err.message);
+          console.warn('Failed to load data from server, using embedded data:', err.message);
+          // Fallback to embedded data
+          this.maps = embeddedMapsData.maps || [];
+          this.engines = embeddedEnginesData.locomotives || [];
+          this.filtered = [...this.maps];
+          this.renderMapList();
+          this.renderEngineTable();
         }
       },
 
